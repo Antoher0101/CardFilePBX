@@ -5,8 +5,104 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CardFilePBX"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="Картотека абонентов" Height="600" Width="1280">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="181*"/>
+            <ColumnDefinition Width="619*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="24"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Menu Panel.ZIndex="10" Grid.Column="0" Grid.ColumnSpan="2" 
+              ScrollViewer.VerticalScrollBarVisibility="Disabled" 
+              UseLayoutRounding="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+            <MenuItem Header="Поиск" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <MenuItem Header="Поиск по имени"></MenuItem>
+                <MenuItem Header="Поиск по номеру" ></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Запись">
+            </MenuItem>
+            <MenuItem Header="?"></MenuItem>
+        </Menu>
+        <Grid Grid.Column="1" Grid.Row="1" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="10*"/>
+                <RowDefinition x:Name="AbonentAddRow" Height="4*"/>
+            </Grid.RowDefinitions>
+            <DataGrid x:Name="AbonentsDataGrid" VerticalAlignment="Stretch"
+                      Grid.Row="0">
+
+            </DataGrid>
+
+            <!-- DB Write -->
+            <Expander x:Name="AbonentAddExpander" IsExpanded="True" HorizontalAlignment="Stretch" ExpandDirection="Down"
+                      Grid.Row="1" FlowDirection="RightToLeft" Collapsed="AbonentAddExpander_Collapsed" Expanded="AbonentAddExpander_Expanded" Margin="-2 0 0 0">
+                <Expander.Header>
+                    <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#FFF0F0F0" BorderThickness="1" BorderBrush="#FF688CAF">
+                        <TextBlock Text="Добавить абонента" 
+                                   Width="{Binding ElementName=AbonentAddExpander, Path=ActualWidth}"
+                                   HorizontalAlignment="Stretch" Padding="5,0,0,0" Height="20" VerticalAlignment="Stretch"/>
+                    </Border>
+                </Expander.Header>
+                <Expander.ContentTemplate>
+                    <DataTemplate>
+                        <WrapPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5" FlowDirection="LeftToRight">
+                            <WrapPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="0 0 15 15">
+                                <TextBlock TextWrapping="Wrap" Text="Имя"/>
+                                <TextBox Width="100"></TextBox>
+                            </WrapPanel>
+                            <WrapPanel Orientation="Vertical" Margin="0 0 15 15">
+                                <TextBlock TextWrapping="Wrap" Text="Фамилия"/>
+                                <TextBox Width="100"></TextBox>
+                            </WrapPanel>
+                            <WrapPanel Orientation="Vertical" Margin="0 0 15 15">
+                                <TextBlock TextWrapping="Wrap" Text="Отчество"/>
+                                <TextBox Width="100"></TextBox>
+                            </WrapPanel>
+                            <WrapPanel Orientation="Vertical" Margin="0 0 15 15">
+                                <TextBlock TextWrapping="Wrap" Text="Номер телефона"/>
+                                <TextBox Width="100"></TextBox>
+                            </WrapPanel>
+                            <Button Content="Добавить" FlowDirection="RightToLeft" Height="25" Width="100" HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                        </WrapPanel>
+
+                    </DataTemplate>
+                </Expander.ContentTemplate>
+
+            </Expander>
+        </Grid>
+        <!-- DB Search -->
+        <Grid Grid.Column="0" Grid.Row="1" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0 5">
+                <DockPanel Margin="0 0 0 15">
+                    <TextBlock TextWrapping="WrapWithOverflow" Text="Имя"/>
+                    <TextBox Width="100" HorizontalAlignment="Right"></TextBox>
+                </DockPanel>
+                <DockPanel Margin="0 0 0 15">
+                    <TextBlock TextWrapping="WrapWithOverflow" Text="Фамилия"/>
+                    <TextBox Width="100" HorizontalAlignment="Right"></TextBox>
+                </DockPanel>
+                <DockPanel Margin="0 0 0 15">
+                    <TextBlock TextWrapping="WrapWithOverflow" Text="Отчество"/>
+                    <TextBox Width="100" HorizontalAlignment="Right"></TextBox>
+                </DockPanel>
+                <DockPanel Margin="0 0 0 15">
+                    <TextBlock TextWrapping="WrapWithOverflow" Text="Номер телефона"/>
+                    <TextBox Width="100" HorizontalAlignment="Right"></TextBox>
+                </DockPanel>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Grid.Row="1" VerticalAlignment="Bottom" Margin="15">
+                <Button Content="Поиск" Height="25" Width="100" HorizontalContentAlignment="Center"/>
+            </StackPanel>
+
+        </Grid>
+        <Border BorderThickness="0,0,1,0" Grid.RowSpan="2" Background="#00000000" BorderBrush="#FF688CAF"/>
+
     </Grid>
 </Window>

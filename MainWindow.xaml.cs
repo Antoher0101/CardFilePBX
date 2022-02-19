@@ -1,4 +1,7 @@
-﻿using System.Windows;
+﻿using System;
+using System.Data.Common;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace CardFilePBX
 {
@@ -14,6 +17,21 @@ namespace CardFilePBX
 		public MainWindow()
 		{
 			InitializeComponent();
+			this.DataContext = this;
+
+			
+		}
+
+		private void AbonentAddExpander_Collapsed(object sender, RoutedEventArgs e)
+		{
+			var expander = sender as Expander;
+			AbonentAddRow.Height = new GridLength(30, GridUnitType.Pixel);
+		}
+
+		private void AbonentAddExpander_Expanded(object sender, RoutedEventArgs e)
+		{
+			var expander = sender as Expander;
+			AbonentAddRow.Height = GridLength.Auto;
 		}
 	}
 }
