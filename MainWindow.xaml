@@ -4,105 +4,254 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CardFilePBX"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="Картотека абонентов" Height="600" Width="1280">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="181*"/>
-            <ColumnDefinition Width="619*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="24"/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-        <Menu Panel.ZIndex="10" Grid.Column="0" Grid.ColumnSpan="2" 
+        Title="Картотека абонентов" Height="600" Width="1280" MinHeight="100"
+		FontFamily="Segoe UI"
+		FontSize="14">
+	<Window.Resources>
+		<local:TariffConverter x:Key="TariffConverter"/>
+		<local:DbStateToBoolean x:Key="dbState" />
+		<DrawingImage x:Key="PhotoPlace">
+			<DrawingImage.Drawing>
+				<DrawingGroup>
+					<GeometryDrawing Brush="LightSkyBlue"
+					                 Geometry="M260 8988 c0 -31 77 -264 113 -343 201 -437 481 -651 1602 -1225 925 -474 960 -493 1047 -584 55 -56 113 -147 139 -215 69 -182 122 -476 154 -855 14 -161 14 -181 0 -200 -175 -237 -283 -501 -355 -867 l-11 -57 -48 -6 c-55 -7 -89 -34 -120 -93 -23 -47 -102 -297 -125 -398 -8 -38 -27 -120 -41 -180 -34 -151 -40 -220 -25 -299 23 -125 84 -186 185 -186 l45 0 0 -37 c0 -21 -4 -112 -9 -203 -26 -451 -34 -879 -22 -1104 17 -318 57 -527 126 -667 43 -87 53 -102 116 -166 84 -85 224 -146 386 -168 37 -5 66 -17 96 -40 198 -151 436 -256 683 -301 121 -22 452 -25 617 -6 704 83 1185 428 1398 1004 65 177 109 422 109 609 0 115 -4 122 -108 177 l-58 31 -13 290 c-6 159 -14 300 -16 313 -2 12 -6 77 -7 143 l-3 119 52 9 c99 16 148 107 148 272 -1 158 -143 716 -208 813 -19 28 -65 57 -118 75 -12 4 -21 33 -34 104 -55 305 -150 581 -261 760 l-44 71 15 194 c23 283 51 473 97 653 42 167 76 254 126 327 39 57 136 150 194 187 57 36 344 186 923 481 272 139 325 167 545 288 74 41 153 84 175 96 84 47 294 182 381 246 265 197 437 414 534 673 23 61 80 252 80 267 0 7 -1330 10 -4230 10 -3202 0 -4230 -3 -4230 -12z" />
+				</DrawingGroup>
+			</DrawingImage.Drawing>
+		</DrawingImage>
+	</Window.Resources>
+
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="181*"/>
+			<ColumnDefinition Width="619*"/>
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="24"/>
+			<RowDefinition/>
+		</Grid.RowDefinitions>
+		<Menu Panel.ZIndex="10" Grid.Column="0" Grid.ColumnSpan="2" 
               ScrollViewer.VerticalScrollBarVisibility="Disabled" 
               UseLayoutRounding="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-            <MenuItem Header="Поиск" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <MenuItem Header="Поиск по имени"></MenuItem>
-                <MenuItem Header="Поиск по номеру" ></MenuItem>
-            </MenuItem>
-            <MenuItem Header="Запись">
-            </MenuItem>
-            <MenuItem Header="?"></MenuItem>
-        </Menu>
-        <Grid Grid.Column="1" Grid.Row="1" Margin="10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="10*"/>
-                <RowDefinition x:Name="AbonentAddRow" Height="4*"/>
-            </Grid.RowDefinitions>
-            <DataGrid x:Name="AbonentsDataGrid" VerticalAlignment="Stretch"
-                      Grid.Row="0">
+			<MenuItem Header="БД" Width="40">
+				<MenuItem Header="Подключиться к базе данных" Click="ConnectDB">
 
-            </DataGrid>
-
-            <!-- DB Write -->
-            <Expander x:Name="AbonentAddExpander" IsExpanded="True" HorizontalAlignment="Stretch" ExpandDirection="Down"
-                      Grid.Row="1" FlowDirection="RightToLeft" Collapsed="AbonentAddExpander_Collapsed" Expanded="AbonentAddExpander_Expanded" Margin="-2 0 0 0">
-                <Expander.Header>
-                    <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#FFF0F0F0" BorderThickness="1" BorderBrush="#FF688CAF">
-                        <TextBlock Text="Добавить абонента" 
-                                   Width="{Binding ElementName=AbonentAddExpander, Path=ActualWidth}"
-                                   HorizontalAlignment="Stretch" Padding="5,0,0,0" Height="20" VerticalAlignment="Stretch"/>
-                    </Border>
-                </Expander.Header>
-                <Expander.ContentTemplate>
-                    <DataTemplate>
-                        <WrapPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5" FlowDirection="LeftToRight">
-                            <WrapPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="0 0 15 15">
-                                <TextBlock TextWrapping="Wrap" Text="Имя"/>
-                                <TextBox Width="100"></TextBox>
-                            </WrapPanel>
-                            <WrapPanel Orientation="Vertical" Margin="0 0 15 15">
-                                <TextBlock TextWrapping="Wrap" Text="Фамилия"/>
-                                <TextBox Width="100"></TextBox>
-                            </WrapPanel>
-                            <WrapPanel Orientation="Vertical" Margin="0 0 15 15">
-                                <TextBlock TextWrapping="Wrap" Text="Отчество"/>
-                                <TextBox Width="100"></TextBox>
-                            </WrapPanel>
-                            <WrapPanel Orientation="Vertical" Margin="0 0 15 15">
-                                <TextBlock TextWrapping="Wrap" Text="Номер телефона"/>
-                                <TextBox Width="100"></TextBox>
-                            </WrapPanel>
-                            <Button Content="Добавить" FlowDirection="RightToLeft" Height="25" Width="100" HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                        </WrapPanel>
-
-                    </DataTemplate>
-                </Expander.ContentTemplate>
-
-            </Expander>
-        </Grid>
-        <!-- DB Search -->
-        <Grid Grid.Column="0" Grid.Row="1" Margin="10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0 5">
-                <DockPanel Margin="0 0 0 15">
-                    <TextBlock TextWrapping="WrapWithOverflow" Text="Имя"/>
-                    <TextBox Width="100" HorizontalAlignment="Right"></TextBox>
-                </DockPanel>
-                <DockPanel Margin="0 0 0 15">
-                    <TextBlock TextWrapping="WrapWithOverflow" Text="Фамилия"/>
-                    <TextBox Width="100" HorizontalAlignment="Right"></TextBox>
-                </DockPanel>
-                <DockPanel Margin="0 0 0 15">
-                    <TextBlock TextWrapping="WrapWithOverflow" Text="Отчество"/>
-                    <TextBox Width="100" HorizontalAlignment="Right"></TextBox>
-                </DockPanel>
-                <DockPanel Margin="0 0 0 15">
-                    <TextBlock TextWrapping="WrapWithOverflow" Text="Номер телефона"/>
-                    <TextBox Width="100" HorizontalAlignment="Right"></TextBox>
-                </DockPanel>
-            </StackPanel>
-            <StackPanel Orientation="Vertical" Grid.Row="1" VerticalAlignment="Bottom" Margin="15">
-                <Button Content="Поиск" Height="25" Width="100" HorizontalContentAlignment="Center"/>
-            </StackPanel>
-
-        </Grid>
-        <Border BorderThickness="0,0,1,0" Grid.RowSpan="2" Background="#00000000" BorderBrush="#FF688CAF"/>
-
-    </Grid>
+				</MenuItem>
+			</MenuItem>
+			<MenuItem Header="Поиск">
+				<MenuItem Header="Общий поиск"></MenuItem>
+				<MenuItem Header="По ИН"></MenuItem>
+				<MenuItem Header="По имени"></MenuItem>
+				<MenuItem Header="По фамилии"></MenuItem>
+				<MenuItem Header="По номеру телефона"></MenuItem>
+			</MenuItem>
+			<MenuItem Header="Запись">
+			</MenuItem>
+			<MenuItem Header="Таблица">
+				<MenuItem Header="Обновить" Click="RefreshBtn_Click"></MenuItem>
+				<MenuItem Header="Тестовые данные" Click="LoadTest"></MenuItem>
+			</MenuItem>
+			<MenuItem Header="?" Click="QuestionMark_Click"></MenuItem>
+		</Menu>
+		<Grid Grid.Column="1" Grid.Row="1" Margin="10 10 10 0">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="10*"/>
+			</Grid.RowDefinitions>
+			<DataGrid x:Name="AbonentsDataGrid"
+					  Margin="0 0 0 10"
+                      Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" 
+                      ItemsSource="{Binding DataTable.DefaultView}" 
+                      AutoGeneratingColumn="AbonentsDataGrid_AutoGeneratingColumn" 
+                      CanUserResizeRows="False" 
+                      CanUserDeleteRows="False" 
+                      CanUserAddRows="False" 
+					  AutoGenerateColumns="True"
+					  IsReadOnly="True" 
+                      CurrentCellChanged="AbonentsDataGrid_CurrentCellChanged" 
+                      SelectionMode="Single">
+			</DataGrid>
+		</Grid>
+		<TabControl x:Name="TabMenu" Grid.Row="1" Grid.Column="0">
+			<TabControl.BitmapEffect>
+				<DropShadowBitmapEffect Color="LightGray" Direction="90" Noise="0" Softness="1" Opacity="0.5"/>
+			</TabControl.BitmapEffect>
+			<TabItem>
+				<TabItem.Header>
+					<StackPanel Orientation="Horizontal">
+						<TextBlock Margin="3" Cursor="Hand">Запись</TextBlock>
+					</StackPanel>
+				</TabItem.Header>
+				<!-- DB Write -->
+				<TabItem.Content>
+					<Grid Grid.Column="0" Grid.Row="1" Margin="10">
+						<StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="10 5 0 5">
+							<DockPanel Margin="0 0 0 15">
+								<TextBlock TextWrapping="WrapWithOverflow" Text="Имя" VerticalAlignment="Center"/>
+								<TextBox x:Name="NameAddBox" HorizontalAlignment="Right" VerticalContentAlignment="Center" 
+								         PreviewTextInput="TextPreviewTextInput"/>
+							</DockPanel>
+							<DockPanel Margin="0 0 0 15">
+								<TextBlock TextWrapping="WrapWithOverflow" Text="Фамилия" VerticalAlignment="Center"/>
+								<TextBox x:Name="LastNameAddBox" HorizontalAlignment="Right" VerticalContentAlignment="Center"
+								         PreviewTextInput="TextPreviewTextInput"/>
+							</DockPanel>
+							<DockPanel Margin="0 0 0 15">
+								<TextBlock TextWrapping="WrapWithOverflow" Text="Отчество" VerticalAlignment="Center"/>
+								<TextBox x:Name="PatronymicAddBox" HorizontalAlignment="Right" VerticalContentAlignment="Center"
+								         PreviewTextInput="TextPreviewTextInput"/>
+							</DockPanel>
+							<DockPanel Margin="0 0 0 15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+								<TextBlock TextWrapping="WrapWithOverflow" Text="Номер телефона" VerticalAlignment="Center"/>
+								<xctk:MaskedTextBox x:Name="PhoneNumberAddBox" HorizontalAlignment="Right" VerticalContentAlignment="Center" 
+								                    Style="{StaticResource {x:Type TextBox}}"
+								                    Mask="+7(000)000-00-00" GotFocus="PhoneNumberAddBox_GotFocus"/>
+							</DockPanel>
+							<DockPanel Margin="0 0 0 15">
+								<TextBlock TextWrapping="WrapWithOverflow" Text="Тариф" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+								<ComboBox x:Name="TariffAddBox" VerticalContentAlignment="Center" HorizontalAlignment="Right" SelectedIndex="{Binding AbonentView.Tariff, Mode=OneWay}">
+									<ComboBoxItem Content="МегаТариф"/>
+									<ComboBoxItem Content="Максимум"/>
+									<ComboBoxItem Content="VIP"/>
+									<ComboBoxItem Content="Премиум"/>
+								</ComboBox>
+							</DockPanel>
+						</StackPanel>
+						<StackPanel Orientation="Vertical" VerticalAlignment="Bottom" Margin="15">
+							<!-- Add abonent button -->
+							<Button Content="Добавить" Height="30" Width="100" HorizontalContentAlignment="Center" Click="AddAbonent" 
+							        IsEnabled="{Binding State, Converter={StaticResource dbState}}"
+							        Cursor="Hand"/>
+						</StackPanel>
+					</Grid>
+				</TabItem.Content>
+			</TabItem>
+			<!-- DB Search -->
+			<TabItem>
+				<TabItem.Header>
+					<StackPanel Orientation="Horizontal">
+						<TextBlock Margin="3" Cursor="Hand">Поиск</TextBlock>
+					</StackPanel>
+				</TabItem.Header>
+				<TabItem.Content>
+					<Grid Grid.Column="0" Grid.Row="1" Margin="10">
+						<StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="10 5 0 5">
+							<DockPanel Margin="0 0 0 15">
+								<TextBlock TextWrapping="WrapWithOverflow" Text="Имя"/>
+								<TextBox Width="100" HorizontalAlignment="Right"
+								         PreviewTextInput="TextPreviewTextInput"/>
+							</DockPanel>
+							<DockPanel Margin="0 0 0 15">
+								<TextBlock TextWrapping="WrapWithOverflow" Text="Фамилия"/>
+								<TextBox Width="100" HorizontalAlignment="Right"
+								         PreviewTextInput="TextPreviewTextInput"/>
+							</DockPanel>
+							<DockPanel Margin="0 0 0 15">
+								<TextBlock TextWrapping="WrapWithOverflow" Text="Отчество"/>
+								<TextBox Width="100" HorizontalAlignment="Right"
+								         PreviewTextInput="TextPreviewTextInput"/>
+							</DockPanel>
+							<DockPanel Margin="0 0 0 15">
+								<TextBlock TextWrapping="WrapWithOverflow" Text="Номер телефона"/>
+								<TextBox Width="100" HorizontalAlignment="Right"></TextBox>
+							</DockPanel>
+						</StackPanel>
+						<StackPanel Orientation="Vertical" VerticalAlignment="Bottom" Margin="15">
+							<Button Content="Поиск" Height="30" Width="100" HorizontalContentAlignment="Center" 
+							        IsEnabled="{Binding State, Converter={StaticResource dbState}}"/>
+						</StackPanel>
+					</Grid>
+				</TabItem.Content>
+			</TabItem>
+			<!-- Selected abonent -->
+			<TabItem x:Name="AbonentCard">
+				<TabItem.Header>
+					<StackPanel Orientation="Horizontal">
+						<TextBlock Margin="3" Cursor="Hand">Карта абонента</TextBlock>
+					</StackPanel>
+				</TabItem.Header>
+				<TabItem.Content>
+					<Grid Grid.Column="0" Grid.Row="1" Margin="10">
+						<StackPanel Orientation="Vertical" Margin="0 0 0 0">
+							<DockPanel Margin="0 0 0 15" HorizontalAlignment="Center">
+								<TextBlock TextWrapping="WrapWithOverflow" Text="Идентификационный номер: "/>
+								<TextBlock Width="Auto" HorizontalAlignment="Left" Text="{Binding Path=AbonentView.Id}"/>
+							</DockPanel>
+							<!-- Photo -->
+							<Grid Height="150" Width="150" Margin="0 0 0 20">
+								<Border BorderThickness="2" BorderBrush="#c1c1c1"></Border>
+								<Image Stretch="Uniform">
+									<Image.Source>
+										<Binding Path="AbonentView.Photo" TargetNullValue="{StaticResource PhotoPlace}"/>
+									</Image.Source>
+								</Image>
+							</Grid>
+							<DockPanel Margin="0 0 0 15">
+								<TextBlock TextWrapping="WrapWithOverflow" Text="Имя"/>
+								<TextBox Width="100" HorizontalAlignment="Right" Text="{Binding AbonentView.Name, Mode=OneWay}" 
+								         IsReadOnly="{Binding IsNoEditing}"
+								         PreviewTextInput="TextPreviewTextInput"/>
+							</DockPanel>
+							<DockPanel Margin="0 0 0 15">
+								<TextBlock TextWrapping="WrapWithOverflow" Text="Фамилия"/>
+								<TextBox Width="100" HorizontalAlignment="Right" Text="{Binding Path=AbonentView.LastName, Mode=OneWay}"
+								         IsReadOnly="{Binding IsNoEditing}"
+								         PreviewTextInput="TextPreviewTextInput"/>
+							</DockPanel>
+							<DockPanel Margin="0 0 0 15">
+								<TextBlock TextWrapping="WrapWithOverflow" Text="Отчество"/>
+								<TextBox Width="100" HorizontalAlignment="Right" Text="{Binding Path=AbonentView.Patronymic, Mode=OneWay}"
+								         IsReadOnly="{Binding IsNoEditing}"
+								         PreviewTextInput="TextPreviewTextInput"/>
+							</DockPanel>
+							<DockPanel Margin="0 0 0 15">
+								<TextBlock TextWrapping="WrapWithOverflow" Text="Номер телефона"/>
+								<TextBox Width="100" HorizontalAlignment="Right" Text="{Binding Path=AbonentView.PhoneNumber, Mode=OneWay}"
+								         IsReadOnly="{Binding IsNoEditing}"/>
+							</DockPanel>
+							<DockPanel Margin="0 0 0 15">
+								<TextBlock TextWrapping="WrapWithOverflow" Text="Тариф" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+								<ComboBox VerticalContentAlignment="Center" HorizontalAlignment="Right" 
+								          SelectedIndex="{Binding AbonentView.Tariff, Converter={StaticResource TariffConverter}, Mode=OneWay}"
+								          IsReadOnly="{Binding IsNoEditing}" HorizontalContentAlignment="Left" VerticalAlignment="Stretch" Margin="0,0,0,0">
+									<ComboBoxItem Content="МегаТариф"/>
+									<ComboBoxItem Content="Максимум"/>
+									<ComboBoxItem Content="VIP"/>
+									<ComboBoxItem Content="Премиум"/>
+								</ComboBox>
+							</DockPanel>
+						</StackPanel>
+						<DockPanel VerticalAlignment="Bottom" Margin="15" HorizontalAlignment="Stretch">
+							<!-- Edit button -->
+							<Button Height="30" Width="40" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Click="EditButton_Click">
+								<Button.Content>
+									<Path Width="23" Stretch="Uniform" Fill="#87cefa">
+										<Path.Data>
+											<Geometry>
+												M472.469,81.443l-63.6-63.6c-13.1-16.4-53.2-30.2-83.4,0l-290.9,289.9l0,0c-4.4,4.4-6.5,10.1-6.2,15.6l-27.1,141.8
+												c-4.2,16.2,11.9,26.6,22.9,25l147-29.2c4.2,0,7.3-2.1,10.4-5.2l290.9-289.8C495.469,142.943,495.469,104.443,472.469,81.443z
+												M354.669,46.043c6.3-7.3,18.8-7.3,26.1,0l17.3,17l-289.7,289.7l-30.1-30.4L354.669,46.043z M61.769,364.043l64.4,64.4l-80.1,15.8
+												L61.769,364.043z M444.369,135.643l-276.8,276.8l-30.1-30.4l290-290l16.8,16.5C453.469,118.343,449.169,130.743,444.369,135.643z
+											</Geometry>
+										</Path.Data>
+									</Path>
+								</Button.Content>
+							</Button>
+							<Button Style="{StaticResource RedButton}" Height="30" Width="40" HorizontalContentAlignment="Center" HorizontalAlignment="Right">
+								<Button.Content>
+									<Path Width="20" Stretch="Uniform" Stroke="#f73d52">
+										<Path.Data>
+											<Geometry>
+												M310.4,235.083L459.88,85.527c12.545-12.546,12.545-32.972,0-45.671L429.433,9.409c-12.547-12.546-32.971-12.546-45.67,0   L234.282,158.967L85.642,10.327c-12.546-12.546-32.972-12.546-45.67,0L9.524,40.774c-12.546,12.546-12.546,32.972,0,45.671   l148.64,148.639L9.678,383.495c-12.546,12.546-12.546,32.971,0,45.67l30.447,30.447c12.546,12.546,32.972,12.546,45.67,0   l148.487-148.41l148.792,148.793c12.547,12.546,32.973,12.546,45.67,0l30.447-30.447c12.547-12.546,12.547-32.972,0-45.671   L310.4,235.083z
+											</Geometry>
+										</Path.Data>
+									</Path>
+								</Button.Content>
+							</Button>
+						</DockPanel>
+					</Grid>
+				</TabItem.Content>
+			</TabItem>
+		</TabControl>
+	</Grid>
 </Window>
