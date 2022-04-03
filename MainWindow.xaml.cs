@@ -7,6 +7,8 @@ using System.Data.SqlClient;
 using System.Data;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Media;
+using Microsoft.Win32;
 
 namespace CardFilePBX
 {
@@ -26,53 +28,82 @@ namespace CardFilePBX
 		public MainWindow()
 		{
 			InitializeComponent();
-
 			db = new DatabaseApplication();
 			this.DataContext = db;
 
-			ConnectDB(this, new RoutedEventArgs());
+			// Подключение БД и инициализация таблицы
+			ConnectionDB(this, new RoutedEventArgs());
 		}
-
 		private void AddAbonent(object sender, RoutedEventArgs e)
 		{
-			db.Open();
+			bool valid = true;
+
 			var firstName = NameAddBox.Text;
 			var lastName = LastNameAddBox.Text;
 			var patronymic = PatronymicAddBox.Text;
 			var phoneNumber = PhoneNumberAddBox.Text;
 			var tariff = TariffAddBox.SelectedIndex;
-			if (firstName != string.Empty && lastName != string.Empty && phoneNumber != string.Empty)
+
+			// Восстановление стиля
+			NameAddBox.Style = (Style)Application.Current.Resources["TextBox"];
+			LastNameAddBox.Style = (Style)Application.Current.Resources["TextBox"]; ;
+			PhoneNumberAddBox.Style = (Style)Application.Current.Resources["TextBox"];
+			TariffAddBox.Style = (Style)Application.Current.Resources["ComboBox"];
+
+			// Валидация ввода
+			if (string.IsNullOrEmpty(firstName))
+			{
+				NameAddBox.Style = (Style)Application.Current.Resources["RedTextBox"];
+				valid = false;
+			}
+			if (string.IsNullOrEmpty(lastName))
+			{
+				LastNameAddBox.Style = (Style)Application.Current.Resources["RedTextBox"];
+				valid = false;
+			}
+			if (string.IsNullOrEmpty(patronymic))
+			{
+				PatronymicAddBox.Text = "-";
+			}
+			Regex ex = new Regex(@"^(\+\d)(\(\d{3}\)\d{3})(\-)(\d{2}\-\d{2})$");
+			if (!ex.IsMatch(phoneNumber))
+			{
+				PhoneNumberAddBox.Style = (Style)Application.Current.Resources["RedTextBox"];
+				valid = false;
+			}
+			if (tariff < 0)
+			{
+				TariffAddBox.Style = (Style)Application.Current.Resources["RedComboBox"];
+				valid = false;
+			}
+
+			if (valid)
 			{
 				db.AddAbonent(firstName, lastName, patronymic, phoneNumber, tariff.ToString());
+				db.UpdateTable();
+				NameAddBox.Text = string.Empty;
+				LastNameAddBox.Text = string.Empty;
+				PatronymicAddBox.Text = string.Empty;
+				PhoneNumberAddBox.Text = string.Empty;
+				TariffAddBox.SelectedIndex = -1;
 			}
-			db.UpdateTable();
-			db.Close();
-			NameAddBox.Text = string.Empty;
-			LastNameAddBox.Text = string.Empty;
-			PatronymicAddBox.Text = string.Empty;
-			PhoneNumberAddBox.Text = string.Empty;
-			TariffAddBox.SelectedIndex = -1;
 		}
 
 		private void QuestionMark_Click(object sender, RoutedEventArgs e)
 		{
-			db.Open();
 			var dialogResult = MessageBox.Show("Вы действительно хотите очистить базу данных от всех записей?", "Очистка базы данных", MessageBoxButton.YesNo);
 			if (dialogResult == MessageBoxResult.Yes)
 			{
 				db.ClearTable();
 			}
 			db.UpdateTable();
-			db.Close();
 		}
 		private void RefreshBtn_Click(object sender, RoutedEventArgs e)
 		{
-			db.Open();
 			db.UpdateTable();
-			db.Close();
 		}
 
-		// Наименование столбцов в таблице
+		// Наименование и ширина столбцов в таблице
 		private void AbonentsDataGrid_AutoGeneratingColumn(object sender, DataGridAutoGeneratingColumnEventArgs e)
 		{
 			var col = e.Column.Header.ToString();
@@ -82,7 +113,6 @@ namespace CardFilePBX
 				case "Id":
 					e.Column.Header = "ИН";
 					e.Column.Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
-
 					break;
 				case "first_name":
 					e.Column.Header = "Имя";
@@ -103,25 +133,23 @@ namespace CardFilePBX
 			}
 		}
 
-		private void LoadTest(object sender, RoutedEventArgs e)
+		private async void LoadTest(object sender, RoutedEventArgs e)
 		{
-			db.Open();
-			if (db.State == System.Data.ConnectionState.Open)
+			StreamReader sr = new StreamReader(@"E:\C#Project\CardFilePBX\database\test2.csv");
+			while (!sr.EndOfStream)
 			{
-				StreamReader sr = new StreamReader(@"E:\C#Project\CardFilePBX\database\test2.csv");
-				while (!sr.EndOfStream)
+				string[] str = sr.ReadLine().Split(',');
+				var firstName = str[1];
+				var lastName = str[2];
+				var patronymic = str[3];
+				var phoneNumber = str[4];
+				Random r = new Random();
+				await Task.Run(() =>
 				{
-					string[] str = sr.ReadLine().Split(',');
-					var firstName = str[1];
-					var lastName = str[2];
-					var patronymic = str[3];
-					var phoneNumber = str[4];
-					Random r = new Random();
-					db.AddAbonent(firstName, lastName, patronymic, phoneNumber, r.Next(0,4).ToString());
-				}
+					db.AddAbonent(firstName, lastName, patronymic, phoneNumber, r.Next(0, 4).ToString());
+				});
 			}
 			db.UpdateTable();
-			db.Close();
 		}
 
 		private void AbonentsDataGrid_CurrentCellChanged(object sender, EventArgs e)
@@ -135,29 +163,21 @@ namespace CardFilePBX
 				AbonentCard.IsSelected = true;
 			}
 		}
-
-		private void ConnectDB(object sender, RoutedEventArgs e)
+		private void ConnectionDB(object sender, RoutedEventArgs args)
 		{
-			if (sender == this || db.State == ConnectionState.Broken)
+			// Проверка доступности БД
+			if (db.CheckDB())
 			{
-				if (db.Open())
+				db.State = ConnectionState.Open;
+				db.UpdateTable();
+				if (sender != this)
 				{
-					db.UpdateTable();
-					db.Close();
+					MessageBox.Show("Успешное подключение к базе данных", "Подключение установлено", MessageBoxButton.OK);
 				}
+				return;
 			}
-			else
-			{
-				var dialogResult = MessageBox.Show("База данных уже подключена. Создать подключение заново?", "Подключение к базе данных", MessageBoxButton.YesNo);
-				if (dialogResult == MessageBoxResult.Yes)
-				{
-					if (db.Open())
-					{
-						db.UpdateTable();
-						db.Close();
-					}
-				}
-			}
+			db.State = ConnectionState.Broken;
+			MessageBox.Show("Невозможно подключиться к базе данных", "Подключение не установлено", MessageBoxButton.OK);
 		}
 		private void TextPreviewTextInput(object sender, TextCompositionEventArgs e)
 		{
@@ -179,6 +199,16 @@ namespace CardFilePBX
 				db.IsNoEditing = true;
 			}
 			else db.IsNoEditing = false;
+		}
+
+		private void DeleteButton_Click(object sender, RoutedEventArgs e)
+		{
+			var dialogResult = MessageBox.Show("Вы действительно хотите удалить абонента из базы данных?", "Удаление из базы данных", MessageBoxButton.YesNo);
+			if (dialogResult == MessageBoxResult.Yes)
+			{
+				db.DeleteAbonent(db.AbonentView.Id);
+			}
+			db.UpdateTable();
 		}
 	}
 }

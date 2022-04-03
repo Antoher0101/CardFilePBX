@@ -35,9 +35,7 @@
               ScrollViewer.VerticalScrollBarVisibility="Disabled" 
               UseLayoutRounding="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
 			<MenuItem Header="БД" Width="40">
-				<MenuItem Header="Подключиться к базе данных" Click="ConnectDB">
-
-				</MenuItem>
+				<MenuItem Header="Проверить подключение" Click="ConnectionDB"/>
 			</MenuItem>
 			<MenuItem Header="Поиск">
 				<MenuItem Header="Общий поиск"></MenuItem>
@@ -60,8 +58,8 @@
 			</Grid.RowDefinitions>
 			<DataGrid x:Name="AbonentsDataGrid"
 					  Margin="0 0 0 10"
-                      Grid.Row="0" Grid.RowSpan="2" Grid.ColumnSpan="2" 
-                      ItemsSource="{Binding DataTable.DefaultView}" 
+                      Grid.Row="0" Grid.ColumnSpan="2" 
+                      ItemsSource="{Binding DataTable.DefaultView, Mode=OneWay, ValidatesOnNotifyDataErrors=False}" 
                       AutoGeneratingColumn="AbonentsDataGrid_AutoGeneratingColumn" 
                       CanUserResizeRows="False" 
                       CanUserDeleteRows="False" 
@@ -89,27 +87,31 @@
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Имя" VerticalAlignment="Center"/>
 								<TextBox x:Name="NameAddBox" HorizontalAlignment="Right" VerticalContentAlignment="Center" 
-								         PreviewTextInput="TextPreviewTextInput"/>
+								         PreviewTextInput="TextPreviewTextInput" Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Фамилия" VerticalAlignment="Center"/>
 								<TextBox x:Name="LastNameAddBox" HorizontalAlignment="Right" VerticalContentAlignment="Center"
-								         PreviewTextInput="TextPreviewTextInput"/>
+								         PreviewTextInput="TextPreviewTextInput"
+								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Отчество" VerticalAlignment="Center"/>
 								<TextBox x:Name="PatronymicAddBox" HorizontalAlignment="Right" VerticalContentAlignment="Center"
-								         PreviewTextInput="TextPreviewTextInput"/>
+								         PreviewTextInput="TextPreviewTextInput"
+								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Номер телефона" VerticalAlignment="Center"/>
 								<xctk:MaskedTextBox x:Name="PhoneNumberAddBox" HorizontalAlignment="Right" VerticalContentAlignment="Center" 
-								                    Style="{StaticResource {x:Type TextBox}}"
+								                    Style="{StaticResource TextBox}"
 								                    Mask="+7(000)000-00-00" GotFocus="PhoneNumberAddBox_GotFocus"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Тариф" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
-								<ComboBox x:Name="TariffAddBox" VerticalContentAlignment="Center" HorizontalAlignment="Right" SelectedIndex="{Binding AbonentView.Tariff, Mode=OneWay}">
+								<ComboBox x:Name="TariffAddBox" VerticalContentAlignment="Center" HorizontalAlignment="Right" 
+								          SelectedIndex="{Binding AbonentView.Tariff, Mode=OneWay}"
+								          Style="{StaticResource ComboBox}">
 									<ComboBoxItem Content="МегаТариф"/>
 									<ComboBoxItem Content="Максимум"/>
 									<ComboBoxItem Content="VIP"/>
@@ -139,21 +141,25 @@
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Имя"/>
 								<TextBox Width="100" HorizontalAlignment="Right"
-								         PreviewTextInput="TextPreviewTextInput"/>
+								         PreviewTextInput="TextPreviewTextInput"
+								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Фамилия"/>
 								<TextBox Width="100" HorizontalAlignment="Right"
-								         PreviewTextInput="TextPreviewTextInput"/>
+								         PreviewTextInput="TextPreviewTextInput"
+								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Отчество"/>
 								<TextBox Width="100" HorizontalAlignment="Right"
-								         PreviewTextInput="TextPreviewTextInput"/>
+								         PreviewTextInput="TextPreviewTextInput"
+								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Номер телефона"/>
-								<TextBox Width="100" HorizontalAlignment="Right"></TextBox>
+								<TextBox Width="100" HorizontalAlignment="Right"
+								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 						</StackPanel>
 						<StackPanel Orientation="Vertical" VerticalAlignment="Bottom" Margin="15">
@@ -190,31 +196,36 @@
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Имя"/>
 								<TextBox Width="100" HorizontalAlignment="Right" Text="{Binding AbonentView.Name, Mode=OneWay}" 
 								         IsReadOnly="{Binding IsNoEditing}"
-								         PreviewTextInput="TextPreviewTextInput"/>
+								         PreviewTextInput="TextPreviewTextInput"
+								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Фамилия"/>
 								<TextBox Width="100" HorizontalAlignment="Right" Text="{Binding Path=AbonentView.LastName, Mode=OneWay}"
 								         IsReadOnly="{Binding IsNoEditing}"
-								         PreviewTextInput="TextPreviewTextInput"/>
+								         PreviewTextInput="TextPreviewTextInput"
+								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Отчество"/>
 								<TextBox Width="100" HorizontalAlignment="Right" Text="{Binding Path=AbonentView.Patronymic, Mode=OneWay}"
 								         IsReadOnly="{Binding IsNoEditing}"
-								         PreviewTextInput="TextPreviewTextInput"/>
+								         PreviewTextInput="TextPreviewTextInput"
+								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Номер телефона"/>
 								<TextBox Width="100" HorizontalAlignment="Right" Text="{Binding Path=AbonentView.PhoneNumber, Mode=OneWay}"
-								         IsReadOnly="{Binding IsNoEditing}"/>
+								         IsReadOnly="{Binding IsNoEditing}"
+								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Тариф" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
 								<ComboBox VerticalContentAlignment="Center" HorizontalAlignment="Right" 
 								          SelectedIndex="{Binding AbonentView.Tariff, Converter={StaticResource TariffConverter}, Mode=OneWay}"
-								          IsReadOnly="{Binding IsNoEditing}" HorizontalContentAlignment="Left" VerticalAlignment="Stretch" Margin="0,0,0,0">
-									<ComboBoxItem Content="МегаТариф"/>
+								          IsReadOnly="{Binding IsNoEditing}" HorizontalContentAlignment="Left" VerticalAlignment="Stretch" Margin="0,0,0,0"
+								          Style="{StaticResource ComboBox}">
+								          <ComboBoxItem Content="МегаТариф"/>
 									<ComboBoxItem Content="Максимум"/>
 									<ComboBoxItem Content="VIP"/>
 									<ComboBoxItem Content="Премиум"/>
@@ -237,7 +248,8 @@
 									</Path>
 								</Button.Content>
 							</Button>
-							<Button Style="{StaticResource RedButton}" Height="30" Width="40" HorizontalContentAlignment="Center" HorizontalAlignment="Right">
+							<Button Style="{StaticResource RedButton}" Height="30" Width="40" HorizontalContentAlignment="Center" HorizontalAlignment="Right" 
+							        Click="DeleteButton_Click">
 								<Button.Content>
 									<Path Width="20" Stretch="Uniform" Stroke="#f73d52">
 										<Path.Data>
