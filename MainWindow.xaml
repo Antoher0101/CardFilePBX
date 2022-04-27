@@ -10,6 +10,7 @@
 		FontFamily="Segoe UI"
 		FontSize="14">
 	<Window.Resources>
+		<local:BooleanToVisibility x:Key="BooleanToVisibility"/>
 		<local:TariffConverter x:Key="TariffConverter"/>
 		<local:DbStateToBoolean x:Key="dbState" />
 		<DrawingImage x:Key="PhotoPlace">
@@ -36,6 +37,7 @@
               UseLayoutRounding="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
 			<MenuItem Header="БД" Width="40">
 				<MenuItem Header="Проверить подключение" Click="ConnectionDB"/>
+				<MenuItem Header="Указать путь к файлу БД" Click="SetConnectionDB"/>
 			</MenuItem>
 			<MenuItem Header="Поиск">
 				<MenuItem Header="Общий поиск"></MenuItem>
@@ -105,7 +107,7 @@
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Номер телефона" VerticalAlignment="Center"/>
 								<xctk:MaskedTextBox x:Name="PhoneNumberAddBox" HorizontalAlignment="Right" VerticalContentAlignment="Center" 
 								                    Style="{StaticResource TextBox}"
-								                    Mask="+7(000)000-00-00" GotFocus="PhoneNumberAddBox_GotFocus"/>
+								                    Mask="+7(000)000-00-00" GotFocus="PhoneNumberBox_GotFocus"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Тариф" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
@@ -140,31 +142,35 @@
 						<StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="10 5 0 5">
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Имя"/>
-								<TextBox Width="100" HorizontalAlignment="Right"
+								<TextBox x:Name="SearchFirstNameBox"
+									Width="100" HorizontalAlignment="Right"
 								         PreviewTextInput="TextPreviewTextInput"
 								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Фамилия"/>
-								<TextBox Width="100" HorizontalAlignment="Right"
+								<TextBox x:Name="SearchLastNameBox"
+								         Width="100" HorizontalAlignment="Right"
 								         PreviewTextInput="TextPreviewTextInput"
 								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Отчество"/>
-								<TextBox Width="100" HorizontalAlignment="Right"
+								<TextBox x:Name="SearchPatronymicBox"
+								         Width="100" HorizontalAlignment="Right"
 								         PreviewTextInput="TextPreviewTextInput"
 								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Номер телефона"/>
-								<TextBox Width="100" HorizontalAlignment="Right"
+								<TextBox x:Name="SearchPhoneNumberBox"
+								         Width="100" HorizontalAlignment="Right"
 								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 						</StackPanel>
 						<StackPanel Orientation="Vertical" VerticalAlignment="Bottom" Margin="15">
 							<Button Content="Поиск" Height="30" Width="100" HorizontalContentAlignment="Center" 
-							        IsEnabled="{Binding State, Converter={StaticResource dbState}}"/>
+							        IsEnabled="{Binding State, Converter={StaticResource dbState}}" Click="SearchButton_Click"/>
 						</StackPanel>
 					</Grid>
 				</TabItem.Content>
@@ -194,35 +200,36 @@
 							</Grid>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Имя"/>
-								<TextBox Width="100" HorizontalAlignment="Right" Text="{Binding AbonentView.Name, Mode=OneWay}" 
+								<TextBox Width="100" HorizontalAlignment="Right" Text="{Binding AbonentView.Name, Mode=TwoWay}" 
 								         IsReadOnly="{Binding IsNoEditing}"
 								         PreviewTextInput="TextPreviewTextInput"
 								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Фамилия"/>
-								<TextBox Width="100" HorizontalAlignment="Right" Text="{Binding Path=AbonentView.LastName, Mode=OneWay}"
+								<TextBox Width="100" HorizontalAlignment="Right" Text="{Binding Path=AbonentView.LastName, Mode=TwoWay}"
 								         IsReadOnly="{Binding IsNoEditing}"
 								         PreviewTextInput="TextPreviewTextInput"
 								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Отчество"/>
-								<TextBox Width="100" HorizontalAlignment="Right" Text="{Binding Path=AbonentView.Patronymic, Mode=OneWay}"
+								<TextBox Width="100" HorizontalAlignment="Right" Text="{Binding Path=AbonentView.Patronymic, Mode=TwoWay}"
 								         IsReadOnly="{Binding IsNoEditing}"
 								         PreviewTextInput="TextPreviewTextInput"
 								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Номер телефона"/>
-								<TextBox Width="100" HorizontalAlignment="Right" Text="{Binding Path=AbonentView.PhoneNumber, Mode=OneWay}"
-								         IsReadOnly="{Binding IsNoEditing}"
-								         Style="{Binding Source={StaticResource TextBox}}"/>
+								<xctk:MaskedTextBox Width="100" HorizontalAlignment="Right" Text="{Binding Path=AbonentView.PhoneNumber, Mode=TwoWay}"
+								                    IsReadOnly="{Binding IsNoEditing}"
+								                    Style="{Binding Source={StaticResource TextBox}}"
+								                    Mask="+7(000)000-00-00" GotFocus="PhoneNumberBox_GotFocus"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Тариф" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
 								<ComboBox VerticalContentAlignment="Center" HorizontalAlignment="Right" 
-								          SelectedIndex="{Binding AbonentView.Tariff, Converter={StaticResource TariffConverter}, Mode=OneWay}"
+								          SelectedIndex="{Binding AbonentView.Tariff, Converter={StaticResource TariffConverter}, Mode=TwoWay}"
 								          IsReadOnly="{Binding IsNoEditing}" HorizontalContentAlignment="Left" VerticalAlignment="Stretch" Margin="0,0,0,0"
 								          Style="{StaticResource ComboBox}">
 								          <ComboBoxItem Content="МегаТариф"/>
@@ -234,9 +241,9 @@
 						</StackPanel>
 						<DockPanel VerticalAlignment="Bottom" Margin="15" HorizontalAlignment="Stretch">
 							<!-- Edit button -->
-							<Button Height="30" Width="40" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Click="EditButton_Click">
+							<Button Height="30" Width="40" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Click="EditButton_Click" Visibility="{Binding IsNoEditing, Converter={StaticResource BooleanToVisibility}}">
 								<Button.Content>
-									<Path Width="23" Stretch="Uniform" Fill="#87cefa">
+									<Path Height="23" Stretch="Uniform" Fill="#87cefa">
 										<Path.Data>
 											<Geometry>
 												M472.469,81.443l-63.6-63.6c-13.1-16.4-53.2-30.2-83.4,0l-290.9,289.9l0,0c-4.4,4.4-6.5,10.1-6.2,15.6l-27.1,141.8
@@ -244,6 +251,16 @@
 												M354.669,46.043c6.3-7.3,18.8-7.3,26.1,0l17.3,17l-289.7,289.7l-30.1-30.4L354.669,46.043z M61.769,364.043l64.4,64.4l-80.1,15.8
 												L61.769,364.043z M444.369,135.643l-276.8,276.8l-30.1-30.4l290-290l16.8,16.5C453.469,118.343,449.169,130.743,444.369,135.643z
 											</Geometry>
+										</Path.Data>
+									</Path>
+								</Button.Content>
+							</Button>
+							<Button Height="30" Width="40" HorizontalContentAlignment="Center" HorizontalAlignment="Left" Click="ConfirmEditing" Visibility="{Binding IsNoEditing, ConverterParameter=1, Converter={StaticResource BooleanToVisibility}}">
+								<Button.Content>
+									<Path Height="23" Stretch="Uniform" Stroke="#87cefa" StrokeThickness="2">
+										<Path.Data>
+											<Geometry>
+												M16.145,2.571c-0.272-0.273-0.718-0.273-0.99,0L6.92,10.804l-4.241-4.27   c-0.272-0.274-0.715-0.274-0.989,0L0.204,8.019c-0.272,0.271-0.272,0.717,0,0.99l6.217,6.258c0.272,0.271,0.715,0.271,0.99,0   L17.63,5.047c0.276-0.273,0.276-0.72,0-0.994L16.145,2.571z</Geometry>
 										</Path.Data>
 									</Path>
 								</Button.Content>

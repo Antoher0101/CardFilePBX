@@ -1,13 +1,11 @@
 ﻿using System;
-using System.IO;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Controls;
-using System.Data.SqlClient;
 using System.Data;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows.Media;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using Microsoft.Win32;
 
 namespace CardFilePBX
@@ -19,19 +17,21 @@ namespace CardFilePBX
 	///	- вводит номер телефона и время разговора;
 	///	- выводит извещение на оплату телефонного разговора.
 	///	Программа должна обеспечивать диалог с помощью меню и контроль ошибок при вводе.
-	///	
-	/// Фильтр по Имени/Фамилии/Отчеству
+	///
+	/// Отсутсвие/наличие базы данных
+	/// Проверка номера телефона на дубликаты
 	public partial class MainWindow : Window
 	{
-		private DatabaseApplication db;
-		public DataTable table { get; set; }
+		//private DatabaseApplication db;
+		private DataListApplication dl;
 		public MainWindow()
 		{
 			InitializeComponent();
-			db = new DatabaseApplication();
-			this.DataContext = db;
 
+			dl = new DataListApplication(@"");
+			this.DataContext = dl;
 			// Подключение БД и инициализация таблицы
+			dl.ReadDatabase();
 			ConnectionDB(this, new RoutedEventArgs());
 		}
 		private void AddAbonent(object sender, RoutedEventArgs e)
@@ -79,8 +79,10 @@ namespace CardFilePBX
 
 			if (valid)
 			{
-				db.AddAbonent(firstName, lastName, patronymic, phoneNumber, tariff.ToString());
-				db.UpdateTable();
+				//db.AddAbonent(firstName, lastName, patronymic, phoneNumber, tariff.ToString());
+				//db.UpdateTable();
+				dl.AddAbonent(firstName, lastName, patronymic, phoneNumber, tariff.ToString());
+				dl.UpdateTable();
 				NameAddBox.Text = string.Empty;
 				LastNameAddBox.Text = string.Empty;
 				PatronymicAddBox.Text = string.Empty;
@@ -94,13 +96,16 @@ namespace CardFilePBX
 			var dialogResult = MessageBox.Show("Вы действительно хотите очистить базу данных от всех записей?", "Очистка базы данных", MessageBoxButton.YesNo);
 			if (dialogResult == MessageBoxResult.Yes)
 			{
-				db.ClearTable();
+				//db.ClearTable();
+				dl.ClearTable();
 			}
-			db.UpdateTable();
+			//db.UpdateTable();
+			dl.UpdateTable();
 		}
 		private void RefreshBtn_Click(object sender, RoutedEventArgs e)
 		{
-			db.UpdateTable();
+			//db.UpdateTable();
+			dl.UpdateTable();
 		}
 
 		// Наименование и ширина столбцов в таблице
@@ -114,19 +119,19 @@ namespace CardFilePBX
 					e.Column.Header = "ИН";
 					e.Column.Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
 					break;
-				case "first_name":
+				case "Name":
 					e.Column.Header = "Имя";
 					break;
-				case "last_name":
+				case "LastName":
 					e.Column.Header = "Фамилия";
 					break;
-				case "patronymic":
+				case "Patronymic":
 					e.Column.Header = "Отчество";
 					break;
-				case "phone_number":
+				case "PhoneNumber":
 					e.Column.Header = "Номер телефона";
 					break;
-				case "tariff":
+				case "Tariff":
 					e.Column.Header = "Тариф";
 					e.Column.Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
 					break;
@@ -136,20 +141,31 @@ namespace CardFilePBX
 		private async void LoadTest(object sender, RoutedEventArgs e)
 		{
 			StreamReader sr = new StreamReader(@"E:\C#Project\CardFilePBX\database\test2.csv");
-			while (!sr.EndOfStream)
+			StreamReader srn = new StreamReader(@"C:\Users\MYAWUTB\Desktop\numbers.txt");
+			StreamWriter sw = new StreamWriter(@"E:\C#Project\CardFilePBX\database\newdb2.csv");
+			var id = 1;
+			Random r = new Random();
+			while (!sr.EndOfStream && !srn.EndOfStream)
 			{
 				string[] str = sr.ReadLine().Split(',');
+				string strn = srn.ReadLine();
+				
 				var firstName = str[1];
 				var lastName = str[2];
 				var patronymic = str[3];
-				var phoneNumber = str[4];
-				Random r = new Random();
-				await Task.Run(() =>
-				{
-					db.AddAbonent(firstName, lastName, patronymic, phoneNumber, r.Next(0, 4).ToString());
-				});
+				var phoneNumber = strn;
+				
+				sw.WriteLine($"{id++},{firstName},{lastName},{patronymic},{phoneNumber},{r.Next(0,4).ToString()}");
+
+				//await Task.Run(() =>
+				//{
+				//	db.AddAbonent(firstName, lastName, patronymic, phoneNumber, r.Next(0, 4).ToString());
+				//});
 			}
-			db.UpdateTable();
+			sr.Close();
+			srn.Close();
+			sw.Close();
+			dl.UpdateTable();
 		}
 
 		private void AbonentsDataGrid_CurrentCellChanged(object sender, EventArgs e)
@@ -159,24 +175,25 @@ namespace CardFilePBX
 			{
 				var curr = new Abonent((int)data.Row[0], (string)data.Row[1], (string)data.Row[2], (string)data.Row[3],
 					(string)data.Row[4], (string)data.Row[5]);
-				db.AbonentView = curr;
+				//db.AbonentView = curr;
+				dl.AbonentView = curr;
 				AbonentCard.IsSelected = true;
 			}
 		}
 		private void ConnectionDB(object sender, RoutedEventArgs args)
 		{
 			// Проверка доступности БД
-			if (db.CheckDB())
+			if (dl.CheckDB())
 			{
-				db.State = ConnectionState.Open;
-				db.UpdateTable();
+				dl.State = ConnectionState.Open;
+				dl.UpdateTable();
 				if (sender != this)
 				{
 					MessageBox.Show("Успешное подключение к базе данных", "Подключение установлено", MessageBoxButton.OK);
 				}
 				return;
 			}
-			db.State = ConnectionState.Broken;
+			else dl.State = ConnectionState.Broken;
 			MessageBox.Show("Невозможно подключиться к базе данных", "Подключение не установлено", MessageBoxButton.OK);
 		}
 		private void TextPreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -187,18 +204,25 @@ namespace CardFilePBX
 				e.Handled = true;
 			}
 		}
-		private void PhoneNumberAddBox_GotFocus(object sender, RoutedEventArgs e)
+		private void PhoneNumberBox_GotFocus(object sender, RoutedEventArgs e)
 		{
 			((Xceed.Wpf.Toolkit.MaskedTextBox)sender).CaretIndex = 3;
 		}
 
 		private void EditButton_Click(object sender, RoutedEventArgs e)
 		{
-			if (db.IsNoEditing == false)
+			dl.IsNoEditing = false;
+		}
+		private void ConfirmEditing(object sender, RoutedEventArgs e)
+		{
+
+			var dialogResult = MessageBox.Show("Вы действительно изменить данные?", "Изменение данных абонента", MessageBoxButton.YesNo);
+			if (dialogResult == MessageBoxResult.Yes)
 			{
-				db.IsNoEditing = true;
+				dl.EditAbonentData();
 			}
-			else db.IsNoEditing = false;
+			dl.IsNoEditing = true;
+			dl.UpdateTable();
 		}
 
 		private void DeleteButton_Click(object sender, RoutedEventArgs e)
@@ -206,9 +230,45 @@ namespace CardFilePBX
 			var dialogResult = MessageBox.Show("Вы действительно хотите удалить абонента из базы данных?", "Удаление из базы данных", MessageBoxButton.YesNo);
 			if (dialogResult == MessageBoxResult.Yes)
 			{
-				db.DeleteAbonent(db.AbonentView.Id);
+				dl.DeleteAbonent(dl.AbonentView.Id);
 			}
-			db.UpdateTable();
+			dl.UpdateTable();
+		}
+
+		private void SearchButton_Click(object sender, RoutedEventArgs e)
+		{
+			dl.UpdateTable();
+			string query = "";
+			if (SearchFirstNameBox.Text != "")
+			{
+				query = "first_name LIKE '%" + SearchFirstNameBox.Text.Trim() + "%' AND ";
+			}
+			if (SearchLastNameBox.Text != "")
+			{
+				query += "last_name LIKE '%" + SearchLastNameBox.Text.Trim() + "%' AND ";
+			}
+			if (SearchPatronymicBox.Text != "")
+			{
+				query += "patronymic LIKE '%" + SearchPatronymicBox.Text.Trim() + "%' AND ";
+			}
+			if (SearchPhoneNumberBox.Text != "")
+			{
+				query += "phone_number LIKE '%" + SearchPhoneNumberBox.Text.Trim() + "%'";
+			}
+			if (query.EndsWith("AND "))
+			{
+				query = query.Remove(query.Length - 4);
+			}
+			dl.SearchAbonent(query);
+		}
+
+		private void SetConnectionDB(object sender, RoutedEventArgs e)
+		{
+			OpenFileDialog openFileDialog1 = new OpenFileDialog();
+			if (openFileDialog1.ShowDialog() != true)
+				return;
+			dl.connectionString = openFileDialog1.FileName;
+			dl.UpdateTable();
 		}
 	}
 }

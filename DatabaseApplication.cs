@@ -1,21 +1,18 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
-using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Data;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 
 namespace CardFilePBX
 {
 	class DatabaseApplication : INotifyPropertyChanged
 	{
-		public string connectionString { get; set; } = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename='|DataDirectory|\database\AbonentsDB.mdf';Integrated Security=True";
+		private string connectionString { get; set; } = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename='|DataDirectory|\database\AbonentsDB.mdf';Integrated Security=True";
 
 		#region Notifiable properties
 
@@ -125,12 +122,11 @@ namespace CardFilePBX
 			{
 				Console.WriteLine(e);
 			}
-
 		}
 		// Добавление записи в таблицу
 		public async void AddAbonent(string first_name, string last_name, string patronymic, string phone_number, string tariff)
 		{
-			string query = $"INSERT INTO Abonents (first_name, last_name, patronymic, phone_number, tariff) VALUES (@first_name, @last_name, @patronymic, @phone_number, @tariff)";
+			string query = $"INSERT INTO Abonents (Name, LastName, Patronymic, PhoneNumber, Tariff) VALUES (@first_name, @last_name, @patronymic, @phone_number, @tariff)";
 			using (SqlConnection connection = new SqlConnection(connectionString))
 			{
 				await connection.OpenAsync();
@@ -144,6 +140,52 @@ namespace CardFilePBX
 					await command.ExecuteNonQueryAsync();
 				}
 				connection.Close();
+			}
+		}
+		public void SearchAbonent(string query)
+		{
+			if (query.Equals(""))
+			{
+				return;
+			}
+
+			var filteredRows = DataTable.Select(query);
+			if (filteredRows.Length == 0)
+			{
+				DataTable dtTemp = DataTable.Clone();
+				dtTemp.Clear();
+				DataTable = dtTemp;
+			}
+			else
+			{
+				DataTable = filteredRows.CopyToDataTable();
+			}
+		}
+		public async void EditAbonentData()
+		{
+			try
+			{
+				using (SqlConnection connection = new SqlConnection(connectionString))
+				{
+					await connection.OpenAsync();
+					using (SqlCommand command = connection.CreateCommand())
+					{
+						command.CommandText = "UPDATE Abonents SET Name = @first_name, LastName = @last_name, Patronymic = @patronymic, PhoneNumber = @phone_number, Tariff = @tariff WHERE Id = @id";
+						command.Parameters.Add("@id", SqlDbType.Int, 4).Value = AbonentView.Id;
+						command.Parameters.Add("@first_name", SqlDbType.NVarChar, 40).Value = AbonentView.Name;
+						command.Parameters.Add("@last_name", SqlDbType.NVarChar, 40).Value = AbonentView.LastName;
+						command.Parameters.Add("@patronymic", SqlDbType.NVarChar, 40).Value = AbonentView.Patronymic;
+						command.Parameters.Add("@phone_number", SqlDbType.Text, 16).Value = AbonentView.PhoneNumber;
+						command.Parameters.Add("@tariff", SqlDbType.Text, 16).Value = AbonentView.Tariff;
+						var deleted = command.ExecuteNonQueryAsync();
+						Console.WriteLine($"Изменено {deleted.Result}");
+					}
+					connection.Close();
+				}
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.Message);
 			}
 		}
 		// Удаление записи из таблицы
@@ -224,6 +266,38 @@ namespace CardFilePBX
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			return value.ToString();
+		}
+
+	}
+	public class BooleanToVisibility : IValueConverter
+	{
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			if ((bool)value)
+			{
+				if (parameter != null)
+				{
+					return (string)parameter == "1" ? Visibility.Collapsed : Visibility.Visible;
+				}
+				return Visibility.Visible;
+			}
+			if (parameter != null)
+			{
+				return (string)parameter == "1" ? Visibility.Visible : Visibility.Collapsed;
+			}
+			return Visibility.Collapsed;
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			if ((Visibility)value == Visibility.Visible)
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
 		}
 
 	}

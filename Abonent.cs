@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CardFilePBX
+﻿namespace CardFilePBX
 {
 	class Abonent
 	{
-		public int Id { get; }
+		public int Id { get; set; }
 		public string Name { get; set; }
-		public string LastName { get; }
-		public string Patronymic { get; }
-		public string PhoneNumber { get; }
-		public string Tariff { get; }
-		public string Photo { get; }
+		public string LastName { get; set; }
+		public string Patronymic { get; set; }
+		public string PhoneNumber { get; set; }
+		public string Tariff { get; set; }
+		public string Photo { get; set; }
 
 		public Abonent(int id, string name, string lastName, string patronymic, string phoneNumber, string tariff, string PhotoUri = null)
 		{
