@@ -98,6 +98,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Converters.cs" />
     <Compile Include="DatabaseApplication.cs" />
     <Compile Include="DataListApplication.cs" />
     <Compile Include="LinkedList.cs" />

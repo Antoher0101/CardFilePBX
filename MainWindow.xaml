@@ -36,6 +36,7 @@
               ScrollViewer.VerticalScrollBarVisibility="Disabled" 
               UseLayoutRounding="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
 			<MenuItem Header="БД" Width="40">
+				<MenuItem Header="Создать новую БД" Click="CreateDB"/>
 				<MenuItem Header="Проверить подключение" Click="ConnectionDB"/>
 				<MenuItem Header="Указать путь к файлу БД" Click="SetConnectionDB"/>
 			</MenuItem>
@@ -68,7 +69,7 @@
                       CanUserAddRows="False" 
 					  AutoGenerateColumns="True"
 					  IsReadOnly="True" 
-                      CurrentCellChanged="AbonentsDataGrid_CurrentCellChanged" 
+                      CurrentCellChanged="AbonentViewChanged" 
                       SelectionMode="Single">
 			</DataGrid>
 		</Grid>
@@ -112,7 +113,7 @@
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Тариф" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
 								<ComboBox x:Name="TariffAddBox" VerticalContentAlignment="Center" HorizontalAlignment="Right" 
-								          SelectedIndex="{Binding AbonentView.Tariff, Mode=OneWay}"
+								          SelectedIndex="{Binding AbonentView.Tariff, Mode=Default}"
 								          Style="{StaticResource ComboBox}">
 									<ComboBoxItem Content="МегаТариф"/>
 									<ComboBoxItem Content="Максимум"/>
@@ -142,30 +143,27 @@
 						<StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="10 5 0 5">
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Имя"/>
-								<TextBox x:Name="SearchFirstNameBox"
-									Width="100" HorizontalAlignment="Right"
+								<TextBox x:Name="SearchFirstNameBox" HorizontalAlignment="Right" VerticalContentAlignment="Center"
 								         PreviewTextInput="TextPreviewTextInput"
 								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Фамилия"/>
-								<TextBox x:Name="SearchLastNameBox"
-								         Width="100" HorizontalAlignment="Right"
+								<TextBox x:Name="SearchLastNameBox" HorizontalAlignment="Right" VerticalContentAlignment="Center"
 								         PreviewTextInput="TextPreviewTextInput"
 								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Отчество"/>
-								<TextBox x:Name="SearchPatronymicBox"
-								         Width="100" HorizontalAlignment="Right"
+								<TextBox x:Name="SearchPatronymicBox" HorizontalAlignment="Right" VerticalContentAlignment="Center"
 								         PreviewTextInput="TextPreviewTextInput"
 								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Номер телефона"/>
-								<TextBox x:Name="SearchPhoneNumberBox"
-								         Width="100" HorizontalAlignment="Right"
-								         Style="{Binding Source={StaticResource TextBox}}"/>
+								<xctk:MaskedTextBox x:Name="SearchPhoneNumberBox" HorizontalAlignment="Right" VerticalContentAlignment="Center" 
+								                    Style="{StaticResource TextBox}"
+								                    Mask="+7(000)000-00-00" GotFocus="PhoneNumberBox_GotFocus"/>
 							</DockPanel>
 						</StackPanel>
 						<StackPanel Orientation="Vertical" VerticalAlignment="Bottom" Margin="15">
@@ -229,7 +227,7 @@
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Тариф" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
 								<ComboBox VerticalContentAlignment="Center" HorizontalAlignment="Right" 
-								          SelectedIndex="{Binding AbonentView.Tariff, Converter={StaticResource TariffConverter}, Mode=TwoWay}"
+								          SelectedIndex="{Binding AbonentView.Tariff, Converter={StaticResource TariffConverter}, Mode=Default}"
 								          IsReadOnly="{Binding IsNoEditing}" HorizontalContentAlignment="Left" VerticalAlignment="Stretch" Margin="0,0,0,0"
 								          Style="{StaticResource ComboBox}">
 								          <ComboBoxItem Content="МегаТариф"/>
