@@ -52,6 +52,13 @@ namespace CardFilePBX
 		}
 		public void Clear()
 		{
+			while (CurrentCell != LastCell.Next)
+			{
+				var next = CurrentCell.Next;
+				CurrentCell.Next = null;
+				CurrentCell.Prev = null;
+				CurrentCell = next;
+			}
 			FirstCell.Next = LastCell;
 			LastCell.Prev = FirstCell;
 			CurrentCell = FirstCell;
