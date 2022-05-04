@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CardFilePBX
 {
-	class Cell<T>
+	public class Cell<T>
 	{
 		public T Value { get; set; }
 		public Cell<T> Next { get; set; }
@@ -22,11 +22,10 @@ namespace CardFilePBX
 			this.Value = Value;
 		}
 	}
-	class LinkedList<T> : IEnumerable<T>
+
+	public class LinkedList<T> : IEnumerable<T>
 	{
 		public Cell<T> CurrentCell { get; set; }
-
-		// Always empty cell
 		public Cell<T> FirstCell { get; set; }
 		public Cell<T> LastCell { get; set; }
 		public int Count { get; private set; }
@@ -115,64 +114,7 @@ namespace CardFilePBX
 
 			Count--;
 		}
-		public void Fill(DataTable table)
-		{
-			DataColumn column;
-			DataRow row;
-			string[] columnsName;
-
-			Abonent template = new Abonent(0,"", "", "", "", "");
-
-			if (table.Columns.Count < 1)
-			{
-				// ИД
-				column = new DataColumn();
-				column.DataType = template.Id.GetType();
-				column.ColumnName = nameof(template.Id);
-				table.Columns.Add(column);
-				// Имя
-				column = new DataColumn();
-				column.DataType = template.Name.GetType();
-				column.ColumnName = nameof(template.Name);
-				table.Columns.Add(column);
-				// Фамилия
-				column = new DataColumn();
-				column.DataType = template.LastName.GetType();
-				column.ColumnName = nameof(template.LastName);
-				table.Columns.Add(column);
-				// Отчество
-				column = new DataColumn();
-				column.DataType = template.Patronymic.GetType();
-				column.ColumnName = nameof(template.Patronymic);
-				table.Columns.Add(column);
-				// Телефон
-				column = new DataColumn();
-				column.DataType = template.PhoneNumber.GetType();
-				column.ColumnName = nameof(template.PhoneNumber);
-				table.Columns.Add(column);
-				// Тариф
-				column = new DataColumn();
-				column.DataType = template.Tariff.GetType();
-				column.ColumnName = nameof(template.Tariff);
-				table.Columns.Add(column);
-			}
-			while (CurrentCell != LastCell.Next)
-			{
-				if (CurrentCell.Value is Abonent value)
-				{
-					row = table.NewRow();
-					row[nameof(template.Id)] = value.Id;
-					row[nameof(template.Name)] = value.Name;
-					row[nameof(template.LastName)] = value.LastName;
-					row[nameof(template.Patronymic)] = value.Patronymic;
-					row[nameof(template.PhoneNumber)] = value.PhoneNumber;
-					row[nameof(template.Tariff)] = value.Tariff;
-					table.Rows.Add(row);
-				}
-				CurrentCell = CurrentCell.Next;
-			}
-			CurrentCell = FirstCell;
-		}
+		
 
 		IEnumerator IEnumerable.GetEnumerator()
 		{
