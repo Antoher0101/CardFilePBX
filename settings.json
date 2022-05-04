@@ -1,0 +1,30 @@
+{
+  "lastFile": {
+    "path": "database\\test.db"
+  },
+  "tariffs": {
+    "mega": {
+      "outgoing": 489,
+      "incoming": 239
+    },
+    "maximum": {
+      "outgoing": 629,
+      "incoming": 309
+    },
+    "vip": {
+      "outgoing": 1000,
+      "incoming": 499
+    },
+    "premium": {
+      "outgoing": 2000,
+      "incoming": 999
+    },
+    "bonus": {
+      "outgoing": 290,
+      "incoming": 0
+    }
+  },
+  "Date": {
+    "currentPeriod": "05.2022"
+  }
+}

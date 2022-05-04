@@ -12,14 +12,11 @@ namespace CardFilePBX
 {
 	///	14. На междугородной телефонной станции картотека абонентов, содержащая сведения о телефонах и их владельцах, организована в виде линейного списка.
 	/// Написать программу, которая:
-	///	- обеспечивает начальное формирование картотеки в виде линейного списка;
-	///	- производит вывод всей картотеки;
+	///	- обеспечивает начальное формирование картотеки в виде линейного списка;✅
+	///	- производит вывод всей картотеки;✅
 	///	- вводит номер телефона и время разговора;
 	///	- выводит извещение на оплату телефонного разговора.
-	///	Программа должна обеспечивать диалог с помощью меню и контроль ошибок при вводе.
-	///
-	/// Отсутсвие/наличие базы данных
-	/// Проверка номера телефона на дубликаты
+	///	Программа должна обеспечивать диалог с помощью меню и контроль ошибок при вводе.✅
 	public partial class MainWindow : Window
 	{
 		//private DatabaseApplication db;
@@ -28,14 +25,16 @@ namespace CardFilePBX
 		{
 			InitializeComponent();
 
-			dl = new DataListApplication(@"");
+			dl = new DataListApplication();
 			this.DataContext = dl;
 			// Подключение БД и инициализация таблицы
-			dl.ReadDatabase();
+			dl.UpdateTable();
 			ConnectionDB(this, new RoutedEventArgs());
 		}
+
 		private void AddAbonent(object sender, RoutedEventArgs e)
 		{
+			Random r = new Random();
 			bool valid = true;
 
 			var firstName = NameAddBox.Text;
@@ -63,7 +62,7 @@ namespace CardFilePBX
 			}
 			if (string.IsNullOrEmpty(patronymic))
 			{
-				PatronymicAddBox.Text = "-";
+				patronymic = "-";
 			}
 			Regex ex = new Regex(@"^(\+\d)(\(\d{3}\)\d{3})(\-)(\d{2}\-\d{2})$");
 			if (!ex.IsMatch(phoneNumber))
@@ -76,12 +75,10 @@ namespace CardFilePBX
 				TariffAddBox.Style = (Style)Application.Current.Resources["RedComboBox"];
 				valid = false;
 			}
-
+			
 			if (valid)
 			{
-				//db.AddAbonent(firstName, lastName, patronymic, phoneNumber, tariff.ToString());
-				//db.UpdateTable();
-				dl.AddAbonent(firstName, lastName, patronymic, phoneNumber, tariff.ToString());
+				dl.AddAbonent(firstName, lastName, patronymic, phoneNumber, tariff.ToString(), DataListApplication.GetTotalCallTime(r), DataListApplication.GetTotalCallTime(r));
 				dl.UpdateTable();
 				NameAddBox.Text = string.Empty;
 				LastNameAddBox.Text = string.Empty;
@@ -96,15 +93,12 @@ namespace CardFilePBX
 			var dialogResult = MessageBox.Show("Вы действительно хотите очистить базу данных от всех записей?", "Очистка базы данных", MessageBoxButton.YesNo);
 			if (dialogResult == MessageBoxResult.Yes)
 			{
-				//db.ClearTable();
 				dl.ClearTable();
 			}
-			//db.UpdateTable();
 			dl.UpdateTable();
 		}
 		private void RefreshBtn_Click(object sender, RoutedEventArgs e)
 		{
-			//db.UpdateTable();
 			dl.UpdateTable();
 		}
 
@@ -133,11 +127,13 @@ namespace CardFilePBX
 					break;
 				case "Tariff":
 					e.Column.Header = "Тариф";
-					e.Column.Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
+					break;
+				default:
+					e.Column.Visibility = Visibility.Collapsed;
 					break;
 			}
 		}
-
+		#region Debug
 		private async void LoadTest(object sender, RoutedEventArgs e)
 		{
 			StreamReader sr = new StreamReader(@"E:\C#Project\CardFilePBX\database\test2.csv");
@@ -149,33 +145,31 @@ namespace CardFilePBX
 			{
 				string[] str = sr.ReadLine().Split(',');
 				string strn = srn.ReadLine();
-				
+
 				var firstName = str[1];
 				var lastName = str[2];
 				var patronymic = str[3];
 				var phoneNumber = strn;
-				
-				sw.WriteLine($"{id++},{firstName},{lastName},{patronymic},{phoneNumber},{r.Next(0,4).ToString()}");
 
-				//await Task.Run(() =>
-				//{
-				//	db.AddAbonent(firstName, lastName, patronymic, phoneNumber, r.Next(0, 4).ToString());
-				//});
+				await Task.Run(() =>
+				{
+					dl.AddAbonent(firstName, lastName, patronymic, phoneNumber, r.Next(0, 4).ToString(), DataListApplication.GetTotalCallTime(r), DataListApplication.GetTotalCallTime(r));
+				});
 			}
 			sr.Close();
 			srn.Close();
 			sw.Close();
 			dl.UpdateTable();
-		}
+		} 
+		#endregion
 
-		private void AbonentsDataGrid_CurrentCellChanged(object sender, EventArgs e)
+		private void AbonentViewChanged(object sender, EventArgs e)
 		{
 			var data = AbonentsDataGrid.CurrentCell.Item as DataRowView;
 			if (data != null)
 			{
 				var curr = new Abonent((int)data.Row[0], (string)data.Row[1], (string)data.Row[2], (string)data.Row[3],
-					(string)data.Row[4], (string)data.Row[5]);
-				//db.AbonentView = curr;
+					(string)data.Row[4], (string)data.Row[5], (int)data.Row[6], (int)data.Row[7]);
 				dl.AbonentView = curr;
 				AbonentCard.IsSelected = true;
 			}
@@ -185,11 +179,11 @@ namespace CardFilePBX
 			// Проверка доступности БД
 			if (dl.CheckDB())
 			{
+				string dbName = Path.GetFileNameWithoutExtension(dl.connectionString);
 				dl.State = ConnectionState.Open;
-				dl.UpdateTable();
 				if (sender != this)
 				{
-					MessageBox.Show("Успешное подключение к базе данных", "Подключение установлено", MessageBoxButton.OK);
+					MessageBox.Show($"Успешное подключение к базе данных {dbName}.", "Подключение установлено", MessageBoxButton.OK);
 				}
 				return;
 			}
@@ -222,6 +216,7 @@ namespace CardFilePBX
 				dl.EditAbonentData();
 			}
 			dl.IsNoEditing = true;
+			dl.AbonentView = null;
 			dl.UpdateTable();
 		}
 
@@ -231,6 +226,7 @@ namespace CardFilePBX
 			if (dialogResult == MessageBoxResult.Yes)
 			{
 				dl.DeleteAbonent(dl.AbonentView.Id);
+				dl.AbonentView = null;
 			}
 			dl.UpdateTable();
 		}
@@ -241,19 +237,19 @@ namespace CardFilePBX
 			string query = "";
 			if (SearchFirstNameBox.Text != "")
 			{
-				query = "first_name LIKE '%" + SearchFirstNameBox.Text.Trim() + "%' AND ";
+				query = "Name LIKE '%" + SearchFirstNameBox.Text.Trim() + "%' AND ";
 			}
 			if (SearchLastNameBox.Text != "")
 			{
-				query += "last_name LIKE '%" + SearchLastNameBox.Text.Trim() + "%' AND ";
+				query += "LastName LIKE '%" + SearchLastNameBox.Text.Trim() + "%' AND ";
 			}
 			if (SearchPatronymicBox.Text != "")
 			{
-				query += "patronymic LIKE '%" + SearchPatronymicBox.Text.Trim() + "%' AND ";
+				query += "Patronymic LIKE '%" + SearchPatronymicBox.Text.Trim() + "%' AND ";
 			}
-			if (SearchPhoneNumberBox.Text != "")
+			if (SearchPhoneNumberBox.IsMaskFull)
 			{
-				query += "phone_number LIKE '%" + SearchPhoneNumberBox.Text.Trim() + "%'";
+				query += "PhoneNumber LIKE '%" + SearchPhoneNumberBox.Text.Trim() + "%'";
 			}
 			if (query.EndsWith("AND "))
 			{
@@ -267,8 +263,23 @@ namespace CardFilePBX
 			OpenFileDialog openFileDialog1 = new OpenFileDialog();
 			if (openFileDialog1.ShowDialog() != true)
 				return;
-			dl.connectionString = openFileDialog1.FileName;
+			dl.SetConnectionString(openFileDialog1.FileName);
 			dl.UpdateTable();
+		}
+
+		private void CreateDB(object sender, RoutedEventArgs e)
+		{
+			SaveFileDialog dialog = new SaveFileDialog()
+			{
+				DefaultExt = "*.db",
+				AddExtension = true,
+				Filter = "Data Base File(*.db)|*.db",
+				InitialDirectory = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\database")),
+			};
+			if (dialog.ShowDialog() == true)
+			{
+				dl.CreateDbFile(dialog.FileName);
+			}
 		}
 	}
 }
