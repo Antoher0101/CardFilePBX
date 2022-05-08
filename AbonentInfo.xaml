@@ -1,0 +1,104 @@
+﻿<Window x:Class="CardFilePBX.AbonentInfo"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CardFilePBX"
+        mc:Ignorable="d"
+        Title="Информация" Height="275" Width="475" ResizeMode="NoResize">
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="25*"/>
+			<RowDefinition Height="152*"/>
+			<RowDefinition Height="50*"/>
+		</Grid.RowDefinitions>
+		<TextBlock Grid.Row="0" x:Name="ReportHeader" TextWrapping="Wrap" Text="Отчет об оказании услуг связи" VerticalAlignment="Center" HorizontalAlignment="Center" Height="16" Width="169"/>
+		<Grid Grid.Row ="1" Margin="10,5,10,0">
+
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="1.8*"/>
+				<ColumnDefinition Width="1*"/>
+				<ColumnDefinition Width="1*"/>
+				<ColumnDefinition Width="1*"/>
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="1*"/>
+				<RowDefinition Height="1*"/>
+				<RowDefinition Height="1*"/>
+				<RowDefinition Height="1*"/>
+				<RowDefinition Height="1*"/>
+			</Grid.RowDefinitions>
+			<Border Grid.Row="0" Grid.Column="0"  BorderBrush="Black"  BorderThickness="1" >
+				<TextBlock Text="Абонент" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+			<Border Grid.Column="0" Grid.Row="1"  BorderBrush="Black"  BorderThickness="1"  >
+				<TextBlock Text="Телефонный номер" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+			<Border Grid.Row="2" Grid.Column="0"  BorderBrush="Black"  BorderThickness="1" />
+			<Border Grid.Row="3" Grid.Column="0"  BorderBrush="Black"  BorderThickness="1" >
+				<TextBlock Text="Длительность разговора, мин." HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+			<Border Grid.Row="4" Grid.Column="0"  BorderBrush="Black"  BorderThickness="1" >
+				<TextBlock Text="Стоимость, руб." HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+			<Border Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="Black"  BorderThickness="1">
+				<TextBlock x:Name="FullnameCell" Text=""  HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{Binding Text, ElementName=FullnameCell}"/>
+			</Border>
+			<Border Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" BorderBrush="Black"  BorderThickness="1">
+				<TextBlock x:Name="PhoneNumberCell" Text="{Binding _Abonent.PhoneNumber}" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTip="{Binding Text, ElementName=PhoneNumberCell}"/>
+			</Border>
+				<Border Grid.Row="2" Grid.Column="1"  BorderBrush="Black"  BorderThickness="1" >
+				<TextBlock Text="Входящие" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+			<Border Grid.Row="3" Grid.Column="1"  BorderBrush="Black"  BorderThickness="1" >
+				<TextBlock x:Name="IncomingCallTime" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+			<Border Grid.Row="4" Grid.Column="1"  BorderBrush="Black"  BorderThickness="1">
+				<TextBlock x:Name="IncomingCost" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+			<Border Grid.Row="2" Grid.Column="2"  BorderBrush="Black"  BorderThickness="1">
+				<TextBlock Text="Исходящие" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+			<Border Grid.Row="3" Grid.Column="2"  BorderBrush="Black"  BorderThickness="1" >
+				<TextBlock x:Name="OutgoingCallTime" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+			<Border Grid.Row="4" Grid.Column="2"  BorderBrush="Black"  BorderThickness="1">
+				<TextBlock x:Name="OutgoingCost" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+			</Border>
+			<Border Grid.Row="2" Grid.Column="3"  BorderBrush="Black"  BorderThickness="1">
+				<TextBlock Text="Все звонки" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+			<Border Grid.Row="3" Grid.Column="3"  BorderBrush="Black"  BorderThickness="1" >
+				<TextBlock x:Name="AllCallTime" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+			<Border Grid.Row="4" Grid.Column="3"  BorderBrush="Black"  BorderThickness="2" >
+				<TextBlock x:Name="AllCallCost" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</Border>
+		</Grid>
+		<Button x:Name="CloseAllButton" Grid.Row="2" Width="100" Height="30" HorizontalAlignment="Center" Margin="10 0" Style="{StaticResource {x:Type Button}}" Content="Закрыть все" Click="CloseAllButton_Click"/>
+		<Button x:Name="BackButton" Grid.Row="2" Height="30" Width="40" HorizontalAlignment="Left" Margin="10 0" Style="{StaticResource {x:Type Button}}" Click="BackButton_Click">
+			<Button.Content>
+				<Path Height="23" Stretch="Uniform" Stroke="#87cefa">
+					<Path.Data>
+						<Geometry>
+							M224.98,255.988L394.488,86.48c9.571-9.571,14.843-22.297,14.843-35.831c0-13.535-5.271-26.26-14.843-35.831    c-19.758-19.756-51.904-19.758-71.662,0l-205.34,205.34c-19.757,19.757-19.757,51.904,0,71.662l205.34,205.339    c9.571,9.571,22.295,14.842,35.83,14.842c13.535,0,26.26-5.271,35.831-14.841c9.571-9.571,14.843-22.296,14.843-35.831    c0-13.535-5.271-26.26-14.843-35.831L224.98,255.988z M380.062,482.734c-5.717,5.718-13.321,8.867-21.406,8.867    c-8.085,0-15.688-3.149-21.405-8.867l-205.34-205.339c-11.803-11.804-11.803-31.01,0-42.813l205.341-205.34    c5.901-5.901,13.653-8.853,21.405-8.853c7.752,0,15.505,2.952,21.405,8.854c5.718,5.718,8.868,13.32,8.868,21.406    s-3.15,15.689-8.868,21.407l-176.719,176.72c-3.983,3.984-3.983,10.442,0,14.425l176.719,176.721    c5.718,5.718,8.868,13.321,8.868,21.406C388.929,469.413,385.78,477.016,380.062,482.734z
+						</Geometry>
+					</Path.Data>
+				</Path>
+			</Button.Content>
+		</Button>
+		<Button x:Name="ForwardButton" Grid.Row="2" Height="30" Width="40" HorizontalAlignment="Right" Margin="10 0" Style="{StaticResource {x:Type Button}}" Click="ForwardButton_Click" >
+			<Button.Content>
+				<Path Height="23" Stretch="Uniform" Stroke="#87cefa">
+					<Path.Data>
+						<Geometry>
+							M394.501,220.156L189.161,14.817c-19.757-19.756-51.903-19.757-71.662,0c-9.571,9.571-14.843,22.297-14.843,35.832    c0,13.535,5.271,26.26,14.843,35.831l169.508,169.508L117.499,425.496c-9.571,9.571-14.843,22.297-14.843,35.832    c0,13.535,5.271,26.26,14.843,35.831C127.071,506.73,139.795,512,153.331,512c13.535,0,26.259-5.27,35.831-14.841l205.339-205.34    c9.571-9.571,14.843-22.297,14.843-35.831C409.343,242.453,404.072,229.728,394.501,220.156z M380.075,277.393L174.736,482.732    c-5.717,5.718-13.32,8.867-21.405,8.867c-8.085,0-15.689-3.149-21.406-8.867c-5.718-5.718-8.868-13.321-8.868-21.406    c0-8.085,3.15-15.688,8.868-21.406l176.72-176.721c3.983-3.983,3.983-10.441,0-14.424L131.925,72.054    c-5.718-5.718-8.868-13.321-8.868-21.406s3.15-15.688,8.868-21.406c5.717-5.718,13.319-8.867,21.406-8.867    c8.086,0,15.688,3.15,21.405,8.868l205.339,205.338c5.718,5.718,8.868,13.321,8.868,21.406    C388.943,264.072,385.793,271.675,380.075,277.393z
+						</Geometry>
+					</Path.Data>
+				</Path>
+			</Button.Content>
+		</Button>
+	</Grid>
+</Window>

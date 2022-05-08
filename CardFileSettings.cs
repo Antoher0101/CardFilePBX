@@ -87,6 +87,9 @@ namespace CardFilePBX
 
 	public partial class Tariff
 	{
+		[JsonProperty("name")]
+		public string Name { get; set; }
+
 		[JsonProperty("outgoing")]
 		public long Outgoing { get; set; }
 

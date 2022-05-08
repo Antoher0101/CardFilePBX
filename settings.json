@@ -4,22 +4,27 @@
   },
   "tariffs": {
     "mega": {
+	  "name" : "МегаТариф",
       "outgoing": 489,
       "incoming": 239
     },
     "maximum": {
+	  "name" : "Максимум",
       "outgoing": 629,
       "incoming": 309
     },
     "vip": {
+	  "name" : "VIP",
       "outgoing": 1000,
       "incoming": 499
     },
     "premium": {
+	  "name" : "Премиум",
       "outgoing": 2000,
       "incoming": 999
     },
     "bonus": {
+	  "name" : "Бонус",
       "outgoing": 290,
       "incoming": 0
     }

@@ -25,24 +25,43 @@ namespace CardFilePBX
 	{
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			var val = value as string;
-			if (val == "МегаТариф") return 0;
-			if (val == "Максимум") return 1;
-			if (val == "VIP") return 2;
-			if (val == "Премиум") return 3;
+			var val = value as Tariff;
+			if (val.Name == "МегаТариф") return 0;
+			if (val.Name == "Максимум") return 1;
+			if (val.Name == "VIP") return 2;
+			if (val.Name == "Премиум") return 3;
 			return 0;
 		}
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
+			Console.WriteLine(targetType);
 			return value;
 		}
 	}
+	public class InverseBooleanConverter : IValueConverter
+	{
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			if (targetType != typeof(bool))
+				return false;
+			return !(bool)value;
+		}
 
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			return !(bool)value;
+		}
+	}
 	public static class TariffToInt
 	{
 		public static object Convert(object value)
 		{
-			var val = value as string;
+			string val;
+			if (value is Tariff)
+			{
+				val = (value as Tariff).Name;
+			}
+			else val = value as string;
 			if (val == "МегаТариф") return 0;
 			if (val == "Максимум") return 1;
 			if (val == "VIP") return 2;

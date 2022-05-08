@@ -21,6 +21,7 @@ namespace CardFilePBX
 	{
 		//private DatabaseApplication db;
 		private DataListApplication dl;
+		private AbonentInfo InfoWindow;
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -168,8 +169,7 @@ namespace CardFilePBX
 			var data = AbonentsDataGrid.CurrentCell.Item as DataRowView;
 			if (data != null)
 			{
-				var curr = new Abonent((int)data.Row[0], (string)data.Row[1], (string)data.Row[2], (string)data.Row[3],
-					(string)data.Row[4], (string)data.Row[5], (int)data.Row[6], (int)data.Row[7]);
+				var curr = dl.SelectById((int)data.Row[0]);
 				dl.AbonentView = curr;
 				AbonentCard.IsSelected = true;
 			}
@@ -209,7 +209,7 @@ namespace CardFilePBX
 		}
 		private void ConfirmEditing(object sender, RoutedEventArgs e)
 		{
-
+			dl.AbonentView.Tariff = dl.TariffConverter(TariffChangeComboBox.SelectedIndex.ToString());
 			var dialogResult = MessageBox.Show("Вы действительно изменить данные?", "Изменение данных абонента", MessageBoxButton.YesNo);
 			if (dialogResult == MessageBoxResult.Yes)
 			{
@@ -279,6 +279,22 @@ namespace CardFilePBX
 			if (dialog.ShowDialog() == true)
 			{
 				dl.CreateDbFile(dialog.FileName);
+			}
+		}
+
+		private void GetAbonentInfo(object sender, RoutedEventArgs e)
+		{
+			if (InfoWindow is null)
+			{
+				InfoWindow = new AbonentInfo(dl.AbonentView);
+				// memory leak
+				InfoWindow.Closed += (o, args) => InfoWindow = null;
+				InfoWindow.Owner = this;
+				InfoWindow.Show();
+			}
+			else
+			{
+				InfoWindow.AddInfoCard(dl.AbonentView);
 			}
 		}
 	}

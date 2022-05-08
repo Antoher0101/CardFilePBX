@@ -1,31 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Configuration;
 using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace CardFilePBX
 {
 	class DataListApplication : INotifyPropertyChanged
 	{
-		private CardFileSettings settings;
+		public CardFileSettings Settings { get; }
 		private LinkedList<Abonent> list;
 		public string connectionString { get; private set; }
 		public int GUID { get; set; }
 		private StreamReader sr;
 		public DataListApplication(string connectionString = null)
 		{
-			settings = GetSettings();
-			settings.PropertyChanged += JsonPropertyChanged;
-			this.connectionString = connectionString ?? settings.LastFile.Path;
+			Settings = GetSettings();
+			Settings.PropertyChanged += JsonPropertyChanged;
+			this.connectionString = connectionString ?? Settings.LastFile.Path;
 			AbonentView = null;
 			DataTable = new DataTable();
 			list = new LinkedList<Abonent>();
@@ -65,6 +62,7 @@ namespace CardFilePBX
 				NotifyPropertyChanged(nameof(IsNoEditing));
 			}
 		}
+
 		private ConnectionState _state = ConnectionState.Broken;
 
 		public ConnectionState State
@@ -100,7 +98,7 @@ namespace CardFilePBX
 		private void JsonPropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			StreamWriter jsonWriter = new StreamWriter("settings.json");
-			string json = this.settings.ToJson();
+			string json = this.Settings.ToJson();
 			jsonWriter.Write(json);
 			jsonWriter.Close();
 		}
@@ -114,7 +112,7 @@ namespace CardFilePBX
 		public void SetConnectionString(string connection)
 		{
 			this.connectionString = connection;
-			settings.LastFile = new LastFile() { Path = connection };
+			Settings.LastFile = new LastFile() { Path = connection };
 		}
 		public async void EditAbonentData()
 		{
@@ -247,28 +245,6 @@ namespace CardFilePBX
 				ReadDatabase();
 				DataTable.Clear();
 				list.Fill(DataTable);
-
-				foreach (DataRowView row in DataTable.DefaultView)
-				{
-					switch (row[5])
-					{
-						case "0":
-							row[5] = "МегаТариф";
-							break;
-						case "1":
-							row[5] = "Максимум";
-							break;
-						case "2":
-							row[5] = "VIP";
-							break;
-						case "3":
-							row[5] = "Премиум";
-							break;
-						default:
-							row[5] = "Бонус";
-							break;
-					}
-				}
 			}
 			catch (Exception e)
 			{
@@ -305,7 +281,8 @@ namespace CardFilePBX
 							string tf = line[5];
 							int og = int.Parse(line[6]);
 							int ic = int.Parse(line[7]);
-							Abonent a = new Abonent(id, fname, lname, patronymic, pn, tf, og, ic);
+							Abonent a = new Abonent(id, fname, lname, patronymic, pn, TariffConverter(tf), og, ic);
+							a.CurrentPeriod = DateTime.ParseExact(Settings.Date.CurrentPeriod, "M.yyyy", CultureInfo.InvariantCulture);
 							list.AddBack(a);
 						}
 					}
@@ -384,7 +361,10 @@ namespace CardFilePBX
 			}
 			finally { Close(); }
 		}
-
+		public Abonent SelectById(int id)
+		{
+			return list.Find(id);
+		}
 		private bool isDuplicate(string num)
 		{
 			var dt = this.DataTable.Select("PhoneNumber LIKE '%" + num.Trim() + "%'");
@@ -395,6 +375,30 @@ namespace CardFilePBX
 				return dt.Length > 0 && dt[0] != dr[0];
 			}
 			return dt.Length > 0;
+		}
+		public Tariff TariffConverter(string n)
+		{
+			Tariff tf;
+			switch (n)
+			{
+				case "0": tf = Settings.Tariffs.Mega;
+					break;
+				case "1":
+					tf = Settings.Tariffs.Maximum;
+					break;
+				case "2":
+					tf = Settings.Tariffs.Vip;
+					break;
+				case "3":
+					tf = Settings.Tariffs.Premium;
+					break;
+				default: tf = Settings.Tariffs.Bonus; break;
+			}
+			return tf;
+		}
+		public static string TariffConverter(Tariff n)
+		{
+			return n.Name;
 		}
 		// Собитие для обновление привязок
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -407,12 +411,27 @@ namespace CardFilePBX
 
 	public static class AbonentListExtension
 	{
+		public static Abonent Find(this LinkedList<Abonent> list, int id)
+		{
+			while (list.CurrentCell.Next != null && list.CurrentCell.Next.Value.Id != id)
+			{
+				list.CurrentCell = list.CurrentCell.Next;
+			}
+			Abonent find = list.CurrentCell.Next.Value;
+			list.CurrentCell = list.FirstCell;
+			if (list.CurrentCell.Next == null)
+			{
+				Console.WriteLine("Cell not found");
+				return null;
+			}
+			return find;
+		}
 		public static void Fill(this LinkedList<Abonent> list, DataTable table)
 		{
 			DataColumn column;
 			DataRow row;
 
-			Abonent template = new Abonent(0, "", "", "", "", "", 0, 0);
+			Abonent template = new Abonent(0, "", "", "", "", new Tariff(), 0, 0);
 
 			if (table.Columns.Count < 1)
 			{
@@ -443,7 +462,7 @@ namespace CardFilePBX
 				table.Columns.Add(column);
 				// Тариф
 				column = new DataColumn();
-				column.DataType = template.Tariff.GetType();
+				column.DataType = typeof(string);
 				column.ColumnName = nameof(template.Tariff);
 				table.Columns.Add(column);
 				// Исходящие звонки
@@ -467,7 +486,7 @@ namespace CardFilePBX
 					row[nameof(template.LastName)] = value.LastName;
 					row[nameof(template.Patronymic)] = value.Patronymic;
 					row[nameof(template.PhoneNumber)] = value.PhoneNumber;
-					row[nameof(template.Tariff)] = value.Tariff;
+					row[nameof(template.Tariff)] = DataListApplication.TariffConverter(value.Tariff);
 					row[nameof(template.Outgoing)] = value.Outgoing;
 					row[nameof(template.Incoming)] = value.Incoming;
 					table.Rows.Add(row);

@@ -1,4 +1,6 @@
-﻿namespace CardFilePBX
+﻿using System;
+
+namespace CardFilePBX
 {
 	public class Abonent
 	{
@@ -7,12 +9,13 @@
 		public string LastName { get; set; }
 		public string Patronymic { get; set; }
 		public string PhoneNumber { get; set; }
-		public string Tariff { get; set; }
+		public Tariff Tariff { get; set; }
 		public int Outgoing { get; set; }
 		public int Incoming { get; set; }
+		public DateTime CurrentPeriod { get; set; }
 		public string Photo { get; set; }
 
-		public Abonent(int id, string name, string lastName, string patronymic, string phoneNumber, string tariff, int outgoing, int incoming)
+		public Abonent(int id, string name, string lastName, string patronymic, string phoneNumber, Tariff tariff, int outgoing, int incoming)
 		{
 			Id = id;
 			Name = name;
