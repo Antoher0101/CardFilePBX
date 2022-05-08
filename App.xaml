@@ -254,13 +254,13 @@
 					<Trigger.EnterActions>
 						<BeginStoryboard>
 							<Storyboard>
-								<ColorAnimation To="#bac3ca"
+								<ColorAnimation To="LightCyan"
                                         Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" 
                                         FillBehavior="HoldEnd" Duration="0:0:0.02" AutoReverse="False" RepeatBehavior="1x"/>
 								<ColorAnimation To="#1c2329"
 								                Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)"
 								                FillBehavior="HoldEnd" Duration="0:0:0.02" AutoReverse="False" RepeatBehavior="1x"/>
-								<ColorAnimation To="#c1c1c1"
+								<ColorAnimation To="#7ac1ed"
 								                Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
 								                FillBehavior="HoldEnd" Duration="0:0:0.02" AutoReverse="False" RepeatBehavior="1x"/>
 							</Storyboard>
@@ -381,13 +381,13 @@
 					<Trigger.EnterActions>
 						<BeginStoryboard>
 							<Storyboard>
-								<ColorAnimation To="#bac3ca"
+								<ColorAnimation To="#ffe2e0"
                                         Storyboard.TargetProperty="(Control.Background).(SolidColorBrush.Color)" 
                                         FillBehavior="HoldEnd" Duration="0:0:0.02" AutoReverse="False" RepeatBehavior="1x"/>
 								<ColorAnimation To="#1c2329"
 								                Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)"
 								                FillBehavior="HoldEnd" Duration="0:0:0.02" AutoReverse="False" RepeatBehavior="1x"/>
-								<ColorAnimation To="#c1c1c1"
+								<ColorAnimation To="#f73d52"
 								                Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
 								                FillBehavior="HoldEnd" Duration="0:0:0.02" AutoReverse="False" RepeatBehavior="1x"/>
 							</Storyboard>
