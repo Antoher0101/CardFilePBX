@@ -5,7 +5,10 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Threading;
+
 using Microsoft.Win32;
 
 namespace CardFilePBX
@@ -14,8 +17,8 @@ namespace CardFilePBX
 	/// Написать программу, которая:
 	///	- обеспечивает начальное формирование картотеки в виде линейного списка;✅
 	///	- производит вывод всей картотеки;✅
-	///	- вводит номер телефона и время разговора;
-	///	- выводит извещение на оплату телефонного разговора.
+	///	- вводит номер телефона и время разговора;✅
+	///	- выводит извещение на оплату телефонного разговора.✅
 	///	Программа должна обеспечивать диалог с помощью меню и контроль ошибок при вводе.✅
 	public partial class MainWindow : Window
 	{
@@ -35,6 +38,7 @@ namespace CardFilePBX
 
 		private void AddAbonent(object sender, RoutedEventArgs e)
 		{
+			TabMenu.SelectedIndex = 0;
 			Random r = new Random();
 			bool valid = true;
 
@@ -76,7 +80,7 @@ namespace CardFilePBX
 				TariffAddBox.Style = (Style)Application.Current.Resources["RedComboBox"];
 				valid = false;
 			}
-			
+
 			if (valid)
 			{
 				dl.AddAbonent(firstName, lastName, patronymic, phoneNumber, tariff.ToString(), DataListApplication.GetTotalCallTime(r), DataListApplication.GetTotalCallTime(r));
@@ -91,12 +95,9 @@ namespace CardFilePBX
 
 		private void QuestionMark_Click(object sender, RoutedEventArgs e)
 		{
-			var dialogResult = MessageBox.Show("Вы действительно хотите очистить базу данных от всех записей?", "Очистка базы данных", MessageBoxButton.YesNo);
-			if (dialogResult == MessageBoxResult.Yes)
-			{
-				dl.ClearTable();
-			}
-			dl.UpdateTable();
+			var about = new AboutWindow();
+			about.Owner = this;
+			about.Show();
 		}
 		private void RefreshBtn_Click(object sender, RoutedEventArgs e)
 		{
@@ -161,7 +162,7 @@ namespace CardFilePBX
 			srn.Close();
 			sw.Close();
 			dl.UpdateTable();
-		} 
+		}
 		#endregion
 
 		private void AbonentViewChanged(object sender, EventArgs e)
@@ -190,6 +191,10 @@ namespace CardFilePBX
 			else dl.State = ConnectionState.Broken;
 			MessageBox.Show("Невозможно подключиться к базе данных", "Подключение не установлено", MessageBoxButton.OK);
 		}
+		private void SaveDB(object sender, RoutedEventArgs e)
+		{
+			dl.WriteDatabase();
+		}
 		private void TextPreviewTextInput(object sender, TextCompositionEventArgs e)
 		{
 			Regex regex = new Regex(@"[0-9]");
@@ -203,9 +208,22 @@ namespace CardFilePBX
 			((Xceed.Wpf.Toolkit.MaskedTextBox)sender).CaretIndex = 3;
 		}
 
-		private void EditButton_Click(object sender, RoutedEventArgs e)
+		private async void EditButton_Click(object sender, RoutedEventArgs e)
 		{
-			dl.IsNoEditing = false;
+			TabMenu.SelectedIndex = 2;
+			if (dl.AbonentView is null)
+			{
+				await Task.Run(() =>
+				{
+					NullSelectionPopup.Dispatcher.Invoke(() => NullSelectionPopup.IsOpen = true);
+					while (dl.AbonentView is null)
+					{
+					}
+					NullSelectionPopup.Dispatcher.Invoke(() => NullSelectionPopup.ClearValue(Popup.IsOpenProperty));
+					dl.IsNoEditing = false;
+				});
+			}
+			else dl.IsNoEditing = false;
 		}
 		private void ConfirmEditing(object sender, RoutedEventArgs e)
 		{
@@ -220,15 +238,28 @@ namespace CardFilePBX
 			dl.UpdateTable();
 		}
 
-		private void DeleteButton_Click(object sender, RoutedEventArgs e)
+		private async void DeleteButton_Click(object sender, RoutedEventArgs e)
 		{
-			var dialogResult = MessageBox.Show("Вы действительно хотите удалить абонента из базы данных?", "Удаление из базы данных", MessageBoxButton.YesNo);
-			if (dialogResult == MessageBoxResult.Yes)
+			TabMenu.SelectedIndex = 2;
+			if (dl.AbonentView is null)
 			{
-				dl.DeleteAbonent(dl.AbonentView.Id);
-				dl.AbonentView = null;
+				await Task.Run(() =>
+				{
+					NullSelectionPopup.Dispatcher.Invoke(() => NullSelectionPopup.IsOpen = true);
+					while (dl.AbonentView is null)
+					{
+					}
+					NullSelectionPopup.Dispatcher.Invoke(() => NullSelectionPopup.ClearValue(Popup.IsOpenProperty));
+				});
 			}
-			dl.UpdateTable();
+			var dialogResult = MessageBox.Show("Вы действительно хотите удалить абонента из базы данных?",
+					"Удаление из базы данных", MessageBoxButton.YesNo);
+				if (dialogResult == MessageBoxResult.Yes)
+				{
+					dl.DeleteAbonent(dl.AbonentView.Id);
+					dl.AbonentView = null;
+				}
+				dl.UpdateTable();
 		}
 
 		private void SearchButton_Click(object sender, RoutedEventArgs e)
@@ -286,7 +317,9 @@ namespace CardFilePBX
 		{
 			if (InfoWindow is null)
 			{
-				InfoWindow = new AbonentInfo(dl.AbonentView);
+				InfoWindow = new AbonentInfo();
+				InfoWindow.SetAbonent(dl.AbonentView);
+
 				// memory leak
 				InfoWindow.Closed += (o, args) => InfoWindow = null;
 				InfoWindow.Owner = this;
@@ -296,6 +329,34 @@ namespace CardFilePBX
 			{
 				InfoWindow.AddInfoCard(dl.AbonentView);
 			}
+		}
+
+		private void ExitProgram(object sender, RoutedEventArgs e)
+		{
+			this.Close();
+		}
+
+		private void AllInfo(object sender, RoutedEventArgs e)
+		{
+			var list = dl.GetAbonentList();
+			if (list is null || list.Count == 0)
+			{
+				MessageBox.Show("В базе данных отсутсвует информация об абонентах.", "Информация отсутствует", MessageBoxButton.OK, MessageBoxImage.Information);
+				return;
+			}
+			InfoWindow = new AbonentInfo();
+			InfoWindow.SetAbonent(list);
+			// memory leak
+			InfoWindow.Closed += (o, args) => InfoWindow = null;
+			InfoWindow.Owner = this;
+			InfoWindow.Show();
+		}
+
+		private void ChangePopupLocation(object sender, MouseEventArgs e)
+		{
+			var mousePosition = e.GetPosition(this.window);
+			this.NullSelectionPopup.HorizontalOffset = mousePosition.X + 15;
+			this.NullSelectionPopup.VerticalOffset = mousePosition.Y + 15;
 		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 
 namespace CardFilePBX
@@ -8,38 +9,52 @@ namespace CardFilePBX
 	/// </summary>
 	public partial class AbonentInfo : Window
 	{
-		public Abonent _Abonent { get; set; }
-		private Stack<Abonent> Prev { get; set; } = new Stack<Abonent>();
-		private Stack<Abonent> Next { get; set; } = new Stack<Abonent>();
-		public AbonentInfo(Abonent abonent)
+		private Abonent CurrentAbonent { get; set; }
+		public Stack<Abonent> Prev { get; set; } = new Stack<Abonent>();
+		public Stack<Abonent> Next { get; set; } = new Stack<Abonent>();
+		public AbonentInfo()
 		{
-			_Abonent = abonent;
 			this.DataContext = this;
 			InitializeComponent();
-			UpdateAbonent();
 		}
 		public void AddInfoCard(Abonent abonent)
 		{
-			Prev.Push(_Abonent);
-			_Abonent = abonent;
+			Prev.Push(CurrentAbonent);
+			CurrentAbonent = abonent;
 			UpdateAbonent();
 		}
-
+		public void SetAbonent(Abonent abonent)
+		{
+			CurrentAbonent = abonent;
+			UpdateAbonent();
+		}
+		public void SetAbonent(List<Abonent> abonent)
+		{
+			for (int i = abonent.Count - 1; i > 0; i--)
+			{
+				Next.Push(abonent[i]);
+			}
+			CurrentAbonent = abonent.First();
+			UpdateAbonent();
+		}
 		private void UpdateAbonent()
 		{
-			Title = $"{_Abonent.Name} {_Abonent.LastName}";
-			ReportHeader.Text += " " + _Abonent.CurrentPeriod.ToString("MM/yyyy");
+			Title = $"{CurrentAbonent.Name} {CurrentAbonent.LastName}";
+			ReportHeader.Text += " " + CurrentAbonent.CurrentPeriod.ToString("MM/yyyy");
 
-			FullnameCell.Text = _Abonent.Patronymic.Length > 1 ? $"{_Abonent.Name} {_Abonent.LastName} {_Abonent.Patronymic}" : $"{_Abonent.Name} {_Abonent.LastName}";
-			PhoneNumberCell.Text = _Abonent.PhoneNumber;
+			FullnameCell.Text = CurrentAbonent.Patronymic.Length > 1 ? $"{CurrentAbonent.Name} {CurrentAbonent.LastName} {CurrentAbonent.Patronymic}" : $"{CurrentAbonent.Name} {CurrentAbonent.LastName}";
+			PhoneNumberCell.Text = CurrentAbonent.PhoneNumber;
 
-			IncomingCallTime.Text = (_Abonent.Incoming).ToString();
-			OutgoingCallTime.Text = (_Abonent.Outgoing).ToString();
-			AllCallTime.Text = (_Abonent.Incoming + _Abonent.Outgoing).ToString();
+			IncomingCallTime.Text = (CurrentAbonent.Incoming).ToString();
+			OutgoingCallTime.Text = (CurrentAbonent.Outgoing).ToString();
+			AllCallTime.Text = (CurrentAbonent.Incoming + CurrentAbonent.Outgoing).ToString();
 
-			IncomingCost.Text = (_Abonent.Incoming * _Abonent.Tariff.Incoming).ToString();
-			OutgoingCost.Text = (_Abonent.Outgoing * _Abonent.Tariff.Outgoing).ToString();
-			AllCallCost.Text = (_Abonent.Incoming * _Abonent.Tariff.Incoming + _Abonent.Outgoing * _Abonent.Tariff.Outgoing).ToString();
+			IncomingCost.Text = (CurrentAbonent.Incoming * CurrentAbonent.Tariff.Incoming).ToString();
+			OutgoingCost.Text = (CurrentAbonent.Outgoing * CurrentAbonent.Tariff.Outgoing).ToString();
+			AllCallCost.Text = (CurrentAbonent.Incoming * CurrentAbonent.Tariff.Incoming + CurrentAbonent.Outgoing * CurrentAbonent.Tariff.Outgoing).ToString();
+
+			BackButton.IsEnabled = Prev.Count > 0;
+			ForwardButton.IsEnabled = Next.Count > 0;
 		}
 		private void CloseAllButton_Click(object sender, RoutedEventArgs e)
 		{
@@ -50,8 +65,8 @@ namespace CardFilePBX
 		{
 			if (Prev.Count > 0)
 			{
-				Next.Push(_Abonent);
-				_Abonent = Prev.Pop();
+				Next.Push(CurrentAbonent);
+				CurrentAbonent = Prev.Pop();
 				UpdateAbonent();
 			}
 		}
@@ -60,8 +75,8 @@ namespace CardFilePBX
 		{
 			if (Next.Count > 0)
 			{
-				Prev.Push(_Abonent);
-				_Abonent = Next.Pop();
+				Prev.Push(CurrentAbonent);
+				CurrentAbonent = Next.Pop();
 				UpdateAbonent();
 			}
 		}

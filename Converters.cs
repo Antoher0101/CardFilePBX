@@ -52,6 +52,21 @@ namespace CardFilePBX
 			return !(bool)value;
 		}
 	}
+	public class CountToBooleanConverter : IValueConverter
+	{
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			Console.WriteLine((int)value);
+			if (targetType != typeof(bool))
+				return false;
+			return (int)value > 0;
+		}
+
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+		{
+			return !(bool)value;
+		}
+	}
 	public static class TariffToInt
 	{
 		public static object Convert(object value)

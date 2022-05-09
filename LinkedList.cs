@@ -118,8 +118,8 @@ namespace CardFilePBX
 		}
 		IEnumerator<T> IEnumerable<T>.GetEnumerator()
 		{
-			Cell<T> current = CurrentCell;
-			while (current != null)
+			Cell<T> current = CurrentCell.Next;
+			while (current.Next != null)
 			{
 				yield return current.Value;
 				current = current.Next;

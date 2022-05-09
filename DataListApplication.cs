@@ -150,7 +150,10 @@ namespace CardFilePBX
 				Close();
 			}
 		}
-
+		public List<Abonent> GetAbonentList()
+		{
+			return list.ToList();
+		}
 		public async void AddAbonent(string first_name, string last_name, string patronymic, string phone_number,
 			string tariff, int og, int ic)
 		{
@@ -213,7 +216,7 @@ namespace CardFilePBX
 			}
 		}
 		// Полная очистка таблицы
-		public async void ClearTable()
+		public void ClearTable()
 		{
 			list.Clear();
 			WriteDatabase();
@@ -301,11 +304,19 @@ namespace CardFilePBX
 			try
 			{
 				Close();
-				StreamWriter sw = new StreamWriter(connectionString, false);
-				while (list.CurrentCell != list.LastCell.Next && list.CurrentCell.Value != null)
+				// Обновление GUID
+				byte[] separator = { 13, 10 }; // \r\n bytes
+				byte[] guid = new byte[12];
+				Encoding.UTF8.GetBytes(GUID.ToString()).CopyTo(guid, 0);
+				separator.CopyTo(guid, 10);
+				File.WriteAllBytes(connectionString, guid);
+
+				StreamWriter sw = new StreamWriter(connectionString, true);
+				while (list.CurrentCell != list.LastCell.Next && list.CurrentCell.Next.Value != null)
 				{
-					string line = $"{list.CurrentCell.Value.Id},{list.CurrentCell.Value.Name},{list.CurrentCell.Value.LastName},{list.CurrentCell.Value.Patronymic},{list.CurrentCell.Value.PhoneNumber},{list.CurrentCell.Value.Tariff},{list.CurrentCell.Value.Outgoing},{list.CurrentCell.Value.Incoming}";
+					string line = $"{list.CurrentCell.Next.Value.Id},{list.CurrentCell.Next.Value.Name},{list.CurrentCell.Next.Value.LastName},{list.CurrentCell.Next.Value.Patronymic},{list.CurrentCell.Next.Value.PhoneNumber},{TariffToInt.Convert(list.CurrentCell.Next.Value.Tariff)},{list.CurrentCell.Next.Value.Outgoing},{list.CurrentCell.Next.Value.Incoming}";
 					sw.WriteLine(line);
+					list.CurrentCell = list.CurrentCell.Next;
 				}
 				list.CurrentCell = list.FirstCell;
 				sw.Close();
@@ -345,7 +356,7 @@ namespace CardFilePBX
 				return str;
 			}
 			var output = str.Trim();
-			output = output.Substring(0, 1).ToUpper(CultureInfo.InvariantCulture) + output.Substring(1);
+			output = output.Substring(0, 1).ToUpperInvariant() + output.Substring(1).ToLowerInvariant();
 			return output.Normalize();
 		}
 		public bool CheckDB()
@@ -396,9 +407,9 @@ namespace CardFilePBX
 			}
 			return tf;
 		}
-		public static string TariffConverter(Tariff n)
+		public static string TariffConverter(Tariff tariff)
 		{
-			return n.Name;
+			return tariff.Name;
 		}
 		// Собитие для обновление привязок
 		public event PropertyChangedEventHandler PropertyChanged;

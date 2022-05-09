@@ -8,7 +8,8 @@
         mc:Ignorable="d"
         Title="Картотека абонентов" Height="650" Width="1280" MinHeight="645"
 		FontFamily="Segoe UI"
-		FontSize="14">
+		FontSize="14"
+        PreviewMouseMove="ChangePopupLocation">
 	<Window.Resources>
 		<local:BooleanToVisibility x:Key="BooleanToVisibility"/>
 		<local:TariffConverter x:Key="TariffConverter"/>
@@ -23,7 +24,6 @@
 			</DrawingImage.Drawing>
 		</DrawingImage>
 	</Window.Resources>
-
 	<Grid>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="181*"/>
@@ -36,12 +36,15 @@
 		<Menu Panel.ZIndex="10" Grid.Column="0" Grid.ColumnSpan="2" 
               ScrollViewer.VerticalScrollBarVisibility="Disabled" 
               UseLayoutRounding="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-			<MenuItem Header="БД" Width="40">
-				<MenuItem Header="Создать новую БД" Click="CreateDB"/>
+			<MenuItem Header="Файл" Width="40">
+				<MenuItem Header="Создать" Click="CreateDB"/>
+				<MenuItem Header="Открыть" Click="SetConnectionDB"/>
+				<MenuItem Header="Сохранить" Click="SaveDB"/>
 				<MenuItem Header="Проверить подключение" Click="ConnectionDB"/>
-				<MenuItem Header="Указать путь к файлу БД" Click="SetConnectionDB"/>
+				<Separator />
+				<MenuItem Header="Выход" Click="ExitProgram"/>
 			</MenuItem>
-			<MenuItem Header="Поиск">
+			<!--<MenuItem Header="Поиск">
 				<MenuItem Header="Общий поиск"></MenuItem>
 				<MenuItem Header="По ИН"></MenuItem>
 				<MenuItem Header="По имени"></MenuItem>
@@ -49,13 +52,25 @@
 				<MenuItem Header="По номеру телефона"></MenuItem>
 			</MenuItem>
 			<MenuItem Header="Запись">
+			</MenuItem>-->
+			<MenuItem Header="Абоненты">
+				<MenuItem Header="Добавить" Click="AddAbonent"></MenuItem>
+				<MenuItem Header="Изменить" Click="EditButton_Click"></MenuItem>
+				<MenuItem Header="Удалить" Click="DeleteButton_Click"></MenuItem>
+				<Separator />
+				<MenuItem Header="Показать всю информацию" Click="AllInfo"></MenuItem>
 			</MenuItem>
 			<MenuItem Header="Таблица">
 				<MenuItem Header="Обновить" Click="RefreshBtn_Click"></MenuItem>
-				<MenuItem Header="Тестовые данные" Click="LoadTest"></MenuItem>
+				<!--<MenuItem Header="Тестовые данные" Click="LoadTest"></MenuItem>-->
 			</MenuItem>
 			<MenuItem Header="?" Click="QuestionMark_Click"></MenuItem>
 		</Menu>
+		<Popup Name="NullSelectionPopup" IsOpen="False" Placement="Relative" HorizontalOffset="0" VerticalOffset="0" PlacementTarget="{Binding ElementName=window}" AllowsTransparency="True">
+			<Border BorderBrush="LightSkyBlue" BorderThickness="2" CornerRadius="3">
+				<TextBlock FontSize="11" Background="LightCyan" Padding="5" TextWrapping="Wrap" Text="Выберите для изменения"/>
+			</Border>
+		</Popup>
 		<Grid Grid.Column="1" Grid.Row="1" Margin="10 10 10 0">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="10*"/>
