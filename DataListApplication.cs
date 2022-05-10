@@ -22,6 +22,8 @@ namespace CardFilePBX
 		{
 			Settings = GetSettings();
 			Settings.PropertyChanged += JsonPropertyChanged;
+			Settings.Date.CurrentPeriod = DateTime.Now.ToString("M.yyyy");
+
 			this.connectionString = connectionString ?? Settings.LastFile.Path;
 			AbonentView = null;
 			DataTable = new DataTable();
@@ -104,10 +106,21 @@ namespace CardFilePBX
 		}
 		private CardFileSettings GetSettings()
 		{
-			StreamReader jsonReader = new StreamReader("settings.json");
-			string json = jsonReader.ReadToEnd();
-			jsonReader.Close();
-			return CardFileSettings.FromJson(json);
+			if (!File.Exists("settings.json"))
+			{
+				StreamWriter jsonWriter = new StreamWriter("settings.json");
+				const string defaultJson = "{\r\n  \"lastFile\": {\r\n    \"path\": \"\"\r\n  },\r\n  \"tariffs\": {\r\n    \"mega\": {\r\n      \"name\": \"МегаТариф\",\r\n      \"outgoing\": 2,\r\n      \"incoming\": 0\r\n    },\r\n    \"maximum\": {\r\n      \"name\": \"Максимум\",\r\n      \"outgoing\": 3,\r\n      \"incoming\": 0\r\n    },\r\n    \"vip\": {\r\n      \"name\": \"VIP\",\r\n      \"outgoing\": 4,\r\n      \"incoming\": 2\r\n    },\r\n    \"premium\": {\r\n      \"name\": \"Премиум\",\r\n      \"outgoing\": 5,\r\n      \"incoming\": 4\r\n    },\r\n    \"bonus\": {\r\n      \"name\": \"Бонус\",\r\n      \"outgoing\": 1,\r\n      \"incoming\": 0\r\n    }\r\n  },\r\n  \"date\": {\r\n    \"currentPeriod\": \"\"\r\n  }\r\n}";
+				jsonWriter.Write(defaultJson);
+				jsonWriter.Close();
+				return CardFileSettings.FromJson(defaultJson);
+			}
+			else
+			{
+				StreamReader jsonReader = new StreamReader("settings.json");
+				string json = jsonReader.ReadToEnd();
+				jsonReader.Close();
+				return CardFileSettings.FromJson(json);
+			}
 		}
 		public void SetConnectionString(string connection)
 		{
@@ -285,7 +298,8 @@ namespace CardFilePBX
 							int og = int.Parse(line[6]);
 							int ic = int.Parse(line[7]);
 							Abonent a = new Abonent(id, fname, lname, patronymic, pn, TariffConverter(tf), og, ic);
-							a.CurrentPeriod = DateTime.ParseExact(Settings.Date.CurrentPeriod, "M.yyyy", CultureInfo.InvariantCulture);
+							if (Settings.Date.CurrentPeriod != String.Empty) { a.CurrentPeriod = DateTime.ParseExact(Settings.Date.CurrentPeriod, "M.yyyy", CultureInfo.InvariantCulture); }
+							else a.CurrentPeriod = DateTime.Now;
 							list.AddBack(a);
 						}
 					}
@@ -324,6 +338,9 @@ namespace CardFilePBX
 			catch (Exception e)
 			{
 				Console.WriteLine("Ошибка записи базы данных: " + e);
+			}
+			finally{
+				JsonPropertyChanged(this, null);
 			}
 		}
 		public void CreateDbFile(string filename)
