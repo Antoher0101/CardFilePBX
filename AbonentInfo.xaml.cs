@@ -4,9 +4,6 @@ using System.Windows;
 
 namespace CardFilePBX
 {
-	/// <summary>
-	/// Логика взаимодействия для AbonentInfo.xaml
-	/// </summary>
 	public partial class AbonentInfo : Window
 	{
 		private Abonent CurrentAbonent { get; set; }

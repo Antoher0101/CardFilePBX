@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CardFilePBX"
         mc:Ignorable="d"
-        Title="О программе" Height="210" Width="373">
+        Title="О программе" Height="210" Width="373" ResizeMode="NoResize">
 	<Grid>
 		<StackPanel Margin="10">
 			<TextBlock Text="CardFilePBX" HorizontalAlignment="Center" FontWeight="Bold" FontSize="16" />

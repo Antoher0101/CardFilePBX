@@ -18,7 +18,6 @@ namespace CardFilePBX
 			this.Value = Value;
 		}
 	}
-
 	public class LinkedList<T> : IEnumerable<T>
 	{
 		public Cell<T> CurrentCell { get; set; }
@@ -31,19 +30,6 @@ namespace CardFilePBX
 			LastCell = new Cell<T>();
 			FirstCell.Next = new Cell<T>();
 			CurrentCell = FirstCell;
-		}
-		public Cell<T> FindCell(T Value)
-		{
-			while (CurrentCell.Next != null && (object)CurrentCell.Next.Value != (object)Value)
-			{
-				CurrentCell = CurrentCell.Next;
-			}
-			if (CurrentCell.Next == null)
-			{
-				Console.WriteLine("Cell not found");
-				return null;
-			}
-			return CurrentCell.Next;
 		}
 		public void Clear()
 		{
@@ -110,8 +96,6 @@ namespace CardFilePBX
 
 			Count--;
 		}
-		
-
 		IEnumerator IEnumerable.GetEnumerator()
 		{
 			return ((IEnumerable)this).GetEnumerator();

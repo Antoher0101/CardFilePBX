@@ -6,10 +6,10 @@
         xmlns:local="clr-namespace:CardFilePBX"
         xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
         mc:Ignorable="d"
-        Title="Картотека абонентов" Height="650" Width="1280" MinHeight="645"
+        Title="Картотека абонентов" Height="650" Width="1280" MinHeight="645" MinWidth="700"
 		FontFamily="Segoe UI"
 		FontSize="14"
-        PreviewMouseMove="ChangePopupLocation">
+		PreviewMouseMove="ChangePopupLocation">
 	<Window.Resources>
 		<local:BooleanToVisibility x:Key="BooleanToVisibility"/>
 		<local:TariffConverter x:Key="TariffConverter"/>
@@ -26,14 +26,14 @@
 	</Window.Resources>
 	<Grid>
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="181*"/>
+			<ColumnDefinition Width="181*" MinWidth="276"/>
 			<ColumnDefinition Width="619*"/>
 		</Grid.ColumnDefinitions>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="24"/>
 			<RowDefinition/>
 		</Grid.RowDefinitions>
-		<Menu Panel.ZIndex="10" Grid.Column="0" Grid.ColumnSpan="2" 
+		<Menu x:Name="TopMenu" Panel.ZIndex="10" Grid.Column="0" Grid.ColumnSpan="2" 
               ScrollViewer.VerticalScrollBarVisibility="Disabled" 
               UseLayoutRounding="False" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
 			<MenuItem Header="Файл" Width="40">
@@ -44,15 +44,6 @@
 				<Separator />
 				<MenuItem Header="Выход" Click="ExitProgram"/>
 			</MenuItem>
-			<!--<MenuItem Header="Поиск">
-				<MenuItem Header="Общий поиск"></MenuItem>
-				<MenuItem Header="По ИН"></MenuItem>
-				<MenuItem Header="По имени"></MenuItem>
-				<MenuItem Header="По фамилии"></MenuItem>
-				<MenuItem Header="По номеру телефона"></MenuItem>
-			</MenuItem>
-			<MenuItem Header="Запись">
-			</MenuItem>-->
 			<MenuItem Header="Абоненты">
 				<MenuItem Header="Добавить" Click="AddAbonent"></MenuItem>
 				<MenuItem Header="Изменить" Click="EditButton_Click"></MenuItem>
@@ -62,7 +53,6 @@
 			</MenuItem>
 			<MenuItem Header="Таблица">
 				<MenuItem Header="Обновить" Click="RefreshBtn_Click"></MenuItem>
-				<!--<MenuItem Header="Тестовые данные" Click="LoadTest"></MenuItem>-->
 			</MenuItem>
 			<MenuItem Header="?" Click="QuestionMark_Click"></MenuItem>
 		</Menu>
@@ -158,7 +148,7 @@
 						<StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="10 5 0 5">
 							<DockPanel Margin="0 0 0 15">
 								<TextBlock TextWrapping="WrapWithOverflow" Text="Имя" VerticalAlignment="Center"/>
-								<TextBox x:Name="SearchFirstNameBox" HorizontalAlignment="Right" VerticalContentAlignment="Center"
+								<TextBox x:Name="SearchNameBox" HorizontalAlignment="Right" VerticalContentAlignment="Center"
 								         PreviewTextInput="TextPreviewTextInput"
 								         Style="{Binding Source={StaticResource TextBox}}"/>
 							</DockPanel>

@@ -18,9 +18,11 @@ namespace CardFilePBX
 		public string connectionString { get; private set; }
 		public int GUID { get; set; }
 		private StreamReader sr;
+		public bool FirstStart { get; internal set; }
 		public DataListApplication(string connectionString = null)
 		{
 			Settings = GetSettings();
+			if (Settings.LastFile.Path == string.Empty) FirstStart = true;
 			Settings.PropertyChanged += JsonPropertyChanged;
 			Settings.Date.CurrentPeriod = DateTime.Now.ToString("M.yyyy");
 
@@ -29,8 +31,6 @@ namespace CardFilePBX
 			DataTable = new DataTable();
 			list = new LinkedList<Abonent>();
 		}
-
-		#region Notifiable properties
 
 		private DataTable _dataTable;
 		public DataTable DataTable
@@ -76,7 +76,6 @@ namespace CardFilePBX
 				NotifyPropertyChanged(nameof(State));
 			}
 		}
-		#endregion
 		public bool Open()
 		{
 			try
@@ -125,6 +124,7 @@ namespace CardFilePBX
 		public void SetConnectionString(string connection)
 		{
 			this.connectionString = connection;
+			if(CheckDB()) State = ConnectionState.Open;
 			Settings.LastFile = new LastFile() { Path = connection };
 		}
 		public async void EditAbonentData()

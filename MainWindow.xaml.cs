@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Win32;
+
+using System;
 using System.Data;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -7,22 +9,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
-using System.Windows.Threading;
-
-using Microsoft.Win32;
 
 namespace CardFilePBX
 {
-	///	14. На междугородной телефонной станции картотека абонентов, содержащая сведения о телефонах и их владельцах, организована в виде линейного списка.
-	/// Написать программу, которая:
-	///	- обеспечивает начальное формирование картотеки в виде линейного списка;✅
-	///	- производит вывод всей картотеки;✅
-	///	- вводит номер телефона и время разговора;✅
-	///	- выводит извещение на оплату телефонного разговора.✅
-	///	Программа должна обеспечивать диалог с помощью меню и контроль ошибок при вводе.✅
 	public partial class MainWindow : Window
 	{
-		//private DatabaseApplication db;
 		private DataListApplication dl;
 		private AbonentInfo InfoWindow;
 		public MainWindow()
@@ -135,36 +126,6 @@ namespace CardFilePBX
 					break;
 			}
 		}
-		#region Debug
-		private async void LoadTest(object sender, RoutedEventArgs e)
-		{
-			StreamReader sr = new StreamReader(@"E:\C#Project\CardFilePBX\database\test2.csv");
-			StreamReader srn = new StreamReader(@"C:\Users\MYAWUTB\Desktop\numbers.txt");
-			StreamWriter sw = new StreamWriter(@"E:\C#Project\CardFilePBX\database\newdb2.csv");
-			var id = 1;
-			Random r = new Random();
-			while (!sr.EndOfStream && !srn.EndOfStream)
-			{
-				string[] str = sr.ReadLine().Split(',');
-				string strn = srn.ReadLine();
-
-				var firstName = str[1];
-				var lastName = str[2];
-				var patronymic = str[3];
-				var phoneNumber = strn;
-
-				await Task.Run(() =>
-				{
-					dl.AddAbonent(firstName, lastName, patronymic, phoneNumber, r.Next(0, 4).ToString(), DataListApplication.GetTotalCallTime(r), DataListApplication.GetTotalCallTime(r));
-				});
-			}
-			sr.Close();
-			srn.Close();
-			sw.Close();
-			dl.UpdateTable();
-		}
-		#endregion
-
 		private void AbonentViewChanged(object sender, EventArgs e)
 		{
 			var data = AbonentsDataGrid.CurrentCell.Item as DataRowView;
@@ -189,7 +150,8 @@ namespace CardFilePBX
 				return;
 			}
 			else dl.State = ConnectionState.Broken;
-			MessageBox.Show("Невозможно подключиться к базе данных", "Подключение не установлено", MessageBoxButton.OK);
+			if(!dl.FirstStart) 
+				MessageBox.Show("Невозможно подключиться к базе данных", "Подключение не установлено", MessageBoxButton.OK);
 		}
 		private void SaveDB(object sender, RoutedEventArgs e)
 		{
@@ -241,6 +203,12 @@ namespace CardFilePBX
 		private async void DeleteButton_Click(object sender, RoutedEventArgs e)
 		{
 			TabMenu.SelectedIndex = 2;
+			if (!dl.IsNoEditing) {
+				dl.IsNoEditing = true;
+				dl.AbonentView = null;
+				dl.UpdateTable();
+				return;
+			}
 			if (dl.AbonentView is null)
 			{
 				await Task.Run(() =>
@@ -266,9 +234,9 @@ namespace CardFilePBX
 		{
 			dl.UpdateTable();
 			string query = "";
-			if (SearchFirstNameBox.Text != "")
+			if (SearchNameBox.Text != "")
 			{
-				query = "Name LIKE '%" + SearchFirstNameBox.Text.Trim() + "%' AND ";
+				query = "Name LIKE '%" + SearchNameBox.Text.Trim() + "%' AND ";
 			}
 			if (SearchLastNameBox.Text != "")
 			{
@@ -320,7 +288,6 @@ namespace CardFilePBX
 				InfoWindow = new AbonentInfo();
 				InfoWindow.SetAbonent(dl.AbonentView);
 
-				// memory leak
 				InfoWindow.Closed += (o, args) => InfoWindow = null;
 				InfoWindow.Owner = this;
 				InfoWindow.Show();
@@ -346,7 +313,6 @@ namespace CardFilePBX
 			}
 			InfoWindow = new AbonentInfo();
 			InfoWindow.SetAbonent(list);
-			// memory leak
 			InfoWindow.Closed += (o, args) => InfoWindow = null;
 			InfoWindow.Owner = this;
 			InfoWindow.Show();
